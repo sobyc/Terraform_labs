@@ -1,0 +1,16 @@
+*.tfstate*
+*.terraform*
+*.tfvars*
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+.tfvars
+.terraformrc
+terraform.rc
+crash.log
+override.tf
+*_override.tf
+override.tf.jason
+*_override.tf.jason
+*.terraform*
+*/.terraform/
