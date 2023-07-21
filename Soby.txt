@@ -7,20 +7,3 @@
 
 
 
-
-
-
-
-
-Azure Service Principal : 
-  "appId": "cfdcc86f-d910-4b45-aa9c-cbbf3ac30cdd",
-  "displayName": "sp-tf-01",
-  "password": "jTU8Q~UnSZr5~rPYnAaH7Oir_4TIgk6RUFl63ag_",
-  "tenant": "eb24ae38-85f4-4e3d-b0da-d84b672ea229"
-
-
-
-    "appId": "d91ca319-79ee-4e9d-8348-c33fdc4e3359",
-  "displayName": "sp-tf-02",
-  "password": "sj-8Q~746GsQSxopxjVaNelz~XSD8ueocV~KPaoW",
-  "tenant": "eb24ae38-85f4-4e3d-b0da-d84b672ea229"
