@@ -7,7 +7,7 @@
 // and Web, App and Db subnets in two Spoke vnets 
 // Do not call and use Resource Group and Vnet Modules in the main file. 
 // Only Call subnet module, if we call resource group and vnet in main file, it will try to create duplicate resources 
-// Initialise Lab10 folder, and add main file calling the Lab09 module as whole
+// Initialise Lab15 folder, and add main file calling the Lab15 module as whole
 // Create NSG module and create 2 NSG
 // Create web,app and db NSG in spoke1
 // Create GatewaySubnet and create Virtual Network Gateway without root cert and vpn point to site configuration 
