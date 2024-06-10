@@ -15,7 +15,7 @@ resource "azurerm_virtual_network" "vnet-01" {
   resource_group_name = azurerm_resource_group.rg-02.name
   address_space       = ["12.0.0.0/16"]
   dns_servers         = ["12.0.0.4", "12.0.0.5"]
-  count               = 2
+  count               = 1
   subnet {
     name           = "snet-del-hub-platform-01"
     address_prefix = "12.0.1.0/24"
