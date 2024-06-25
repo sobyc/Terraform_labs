@@ -44,6 +44,8 @@ resource "azurerm_subnet" "subnet-vnet-03" {
 }
 
 
+
+
 /*
 module "Nsg" {
   source = "../Nsg"

@@ -45,6 +45,8 @@ resource "azurerm_network_interface" "vm-spoke1-web-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.spoke1-web.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.vm1-pip.id
+
   }
 }
 output "nic-id" {
@@ -89,6 +91,7 @@ resource "azurerm_network_interface" "vm-spoke2-db-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.spoke2-db.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.vm2-pip.id
   }
 }
 
@@ -114,5 +117,30 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke2-db-01" {
     offer     = "WindowsServer"
     sku       = "2016-Datacenter"
     version   = "latest"
+  }
+}
+
+
+
+resource "azurerm_public_ip" "vm1-pip" {
+  name                = "vmciweb01-pip"
+  resource_group_name = data.azurerm_resource_group.rg2.name
+  location            = data.azurerm_resource_group.rg2.location
+  allocation_method   = "Dynamic"
+
+  tags = {
+    environment = "Production"
+  }
+}
+
+
+resource "azurerm_public_ip" "vm2-pip" {
+  name                = "vmcidb01-pip"
+  resource_group_name = data.azurerm_resource_group.rg3.name
+  location            = data.azurerm_resource_group.rg3.location
+  allocation_method   = "Dynamic"
+
+  tags = {
+    environment = "Production"
   }
 }
