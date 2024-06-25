@@ -6,6 +6,14 @@ output "rg-spoke1" {
   value = data.azurerm_resource_group.rg2.name
 }
 
+data "azurerm_resource_group" "rg3" {
+  name = "rg-ci-spoke-02"
+}
+
+output "rg-spoke2" {
+  value = data.azurerm_resource_group.rg3.name
+}
+
 
 data "azurerm_subnet" "spoke1-web" {
   name                 = "snet-ci-spoke1-web-01"
@@ -15,6 +23,16 @@ data "azurerm_subnet" "spoke1-web" {
 
 output "subnet_id_spoke1_web" {
   value = data.azurerm_subnet.spoke1-web.id
+}
+
+data "azurerm_subnet" "spoke2-db" {
+  name                 = "snet-ci-spoke2-db-01"
+  virtual_network_name = "vnet-ci-spoke-02"
+  resource_group_name  = "rg-ci-spoke-02"
+}
+
+output "subnet_id_spoke2_db" {
+  value = data.azurerm_subnet.spoke2-db.id
 }
 
 
@@ -62,28 +80,28 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
 
 
 
-resource "azurerm_network_interface" "vm-spoke1-web-02" {
-  name                = "nic-${var.prefix}-02"
-  location            = data.azurerm_resource_group.rg2.location
-  resource_group_name = data.azurerm_resource_group.rg2.name
+resource "azurerm_network_interface" "vm-spoke2-db-01" {
+  name                = "nic-${var.prefix-db}-02"
+  location            = data.azurerm_resource_group.rg3.location
+  resource_group_name = data.azurerm_resource_group.rg3.name
 
   ip_configuration {
     name                          = "testconfiguration1"
-    subnet_id                     = data.azurerm_subnet.spoke1-web.id
+    subnet_id                     = data.azurerm_subnet.spoke2-db.id
     private_ip_address_allocation = "Dynamic"
   }
 }
 
 
 
-resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-02" {
-  name                  = "vmciweb02"
-  resource_group_name   = data.azurerm_resource_group.rg2.name
-  location              = data.azurerm_resource_group.rg2.location
+resource "azurerm_windows_virtual_machine" "vm-ci-spoke2-db-01" {
+  name                  = "vmcidb01"
+  resource_group_name   = data.azurerm_resource_group.rg3.name
+  location              = data.azurerm_resource_group.rg3.location
   size                  = "Standard_D2s_v3"
   admin_username        = "adminuser"
   admin_password        = "Windows@111"
-  network_interface_ids = [azurerm_network_interface.vm-spoke1-web-02.id, ]
+  network_interface_ids = [azurerm_network_interface.vm-spoke2-db-01.id, ]
 
 
   os_disk {

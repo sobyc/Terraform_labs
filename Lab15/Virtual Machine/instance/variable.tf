@@ -6,7 +6,10 @@ variable "prefix" {
 }
 
 
-
+variable "prefix-db" {
+  type    = string
+  default = "spoke2-db"
+}
 
 
 

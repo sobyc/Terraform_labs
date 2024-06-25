@@ -6,6 +6,7 @@ module "resource_group" {
 
 module "vnet-hub" {
   source = "../Vnet"
+
 }
 
 

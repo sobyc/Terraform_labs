@@ -19,7 +19,10 @@ variable "vnet-spoke1" {
   default = "spoke1"
 }
 
-
+variable "vnet-spoke2" {
+  type    = string
+  default = "spoke2"
+}
 
 
 
