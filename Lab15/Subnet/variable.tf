@@ -2,12 +2,12 @@
 
 variable "subnet_prefixes-vnet-01" {
   description = "The address prefix to use for the subnet."
-  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", "10.0.0.0/24"]
+  default     = ["10.0.0.0/24","10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24", "10.0.4.0/24" ]
 }
 
 variable "subnet_names-vnet-hub" {
   description = "A list of public subnets inside the vNet1."
-  default     = ["snet-ci-hub-identity-01", "snet-ci-hub-mgmt-01", "snet-ci-hub-connectivity-01", "GatewaySubnet"]
+  default     = ["GatewaySubnet","AzureFirewallSubnet","snet-ci-hub-identity-01", "snet-ci-hub-mgmt-01", "snet-ci-hub-connectivity-01"]
 }
 
 variable "subnet_prefixes-vnet-02" {

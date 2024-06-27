@@ -14,7 +14,7 @@
 // Implement Platform folder and run module and code from Platform
 // Remove NSG module initiation from Subnet main file, and keep it to run seperately like VNG module
 // Remove RG module reference from NSG main file, use data argument to list the resource groups
-// Create separate virtual machine module, create 2 Windows Virtual Machine
+// Create separate virtual machine module, create 2 Windows Virtual Machine in two seperate spoke, one in spoke1 and other in spoke 2
 
 module "Platform" {
   source = "./Platform"
