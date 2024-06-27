@@ -15,7 +15,9 @@
 // Remove NSG module initiation from Subnet main file, and keep it to run seperately like VNG module
 // Remove RG module reference from NSG main file, use data argument to list the resource groups
 // Create separate virtual machine module, create 2 Windows Virtual Machine in two seperate spoke, one in spoke1 and other in spoke 2
-// Create Public IP resource and attached it the VM to take RDP directly from the Laptop.
+// Create Public IP resource and attached it the VM to RDP directly.
+// Create one Virtual Machine Hub VNet, to check the connectivity
+// Create Route Table module and create 3 Route Table
 
 module "Platform" {
   source = "./Platform"
