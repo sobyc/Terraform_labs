@@ -18,7 +18,9 @@ resource "azurerm_subnet" "subnet-vnet-01" {
   address_prefixes     = ["${var.subnet_prefixes-vnet-01[count.index]}"]
   count                = length(var.subnet_names-vnet-hub)
 
-
+  depends_on = [
+    module.resource_group,module.vnet-hub
+  ]
 }
 
 
@@ -29,7 +31,9 @@ resource "azurerm_subnet" "subnet-vnet-02" {
   address_prefixes     = ["${var.subnet_prefixes-vnet-02[count.index]}"]
   count                = length(var.subnet_names-vnet-spoke1)
 
-
+  depends_on = [
+    module.resource_group,module.vnet-hub
+  ]
 }
 
 
@@ -39,7 +43,10 @@ resource "azurerm_subnet" "subnet-vnet-03" {
   resource_group_name  = module.resource_group.rg-03
   address_prefixes     = ["${var.subnet_prefixes-vnet-03[count.index]}"]
   count                = length(var.subnet_names-vnet-spoke2)
-
+  
+  depends_on = [
+    module.resource_group,module.vnet-hub
+  ]
 
 }
 
