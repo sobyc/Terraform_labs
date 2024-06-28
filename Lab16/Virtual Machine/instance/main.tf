@@ -1,3 +1,11 @@
+data "azurerm_resource_group" "rg1" {
+  name = "rg-ci-hub-01"
+}
+
+output "rg-hub" {
+  value = data.azurerm_resource_group.rg1.name
+}
+
 data "azurerm_resource_group" "rg2" {
   name = "rg-ci-spoke-01"
 }
@@ -14,6 +22,16 @@ output "rg-spoke2" {
   value = data.azurerm_resource_group.rg3.name
 }
 
+
+data "azurerm_subnet" "hub-mgmt" {
+  name                 = "snet-ci-hub-mgmt-01"
+  virtual_network_name = "vnet-ci-hub-01"
+  resource_group_name  = "rg-ci-hub-01"
+}
+
+output "subnet_id_hub_mgmt" {
+  value = data.azurerm_subnet.hub-mgmt.id
+}
 
 data "azurerm_subnet" "spoke1-web" {
   name                 = "snet-ci-spoke1-web-01"
@@ -36,8 +54,79 @@ output "subnet_id_spoke2_db" {
 }
 
 
+resource "azurerm_public_ip" "vm0-pip" {
+  name                = "vmcihmt01-pip"
+  resource_group_name = data.azurerm_resource_group.rg1.name
+  location            = data.azurerm_resource_group.rg1.location
+  allocation_method   = "Dynamic"
+
+  tags = {
+    environment = "Production"
+  }
+}
+
+resource "azurerm_network_interface" "vm-hub-mgmt-01" {
+  name                = "nic-${var.prefix-hub-mgmt}-01"
+  location            = data.azurerm_resource_group.rg1.location
+  resource_group_name = data.azurerm_resource_group.rg1.name
+
+  ip_configuration {
+    name                          = "testconfiguration1"
+    subnet_id                     = data.azurerm_subnet.hub-mgmt.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.vm0-pip.id
+
+  }
+  
+  depends_on = [ azurerm_public_ip.vm1-pip ]
+
+}
+
+output "nic-00-id" {
+  value = azurerm_network_interface.vm-hub-mgmt-01.id
+}
+
+resource "azurerm_windows_virtual_machine" "vm-ci-hub-mgmt-01" {
+  name                  = "vmcihmt01"
+  resource_group_name   = data.azurerm_resource_group.rg1.name
+  location              = data.azurerm_resource_group.rg1.location
+  size                  = "Standard_D2s_v3"
+  admin_username        = "adminuser"
+  admin_password        = "Windows@111"
+  network_interface_ids = [azurerm_network_interface.vm-hub-mgmt-01.id, ]
+
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2016-Datacenter"
+    version   = "latest"
+  }
+  
+  depends_on = [ azurerm_network_interface.vm-hub-mgmt-01 ]
+
+
+}
+
+
+resource "azurerm_public_ip" "vm1-pip" {
+  name                = "vmciweb01-pip"
+  resource_group_name = data.azurerm_resource_group.rg2.name
+  location            = data.azurerm_resource_group.rg2.location
+  allocation_method   = "Dynamic"
+
+  tags = {
+    environment = "Production"
+  }
+}
+
 resource "azurerm_network_interface" "vm-spoke1-web-01" {
-  name                = "nic-${var.prefix}-01"
+  name                = "nic-${var.prefix-spoke1-web}-01"
   location            = data.azurerm_resource_group.rg2.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -48,8 +137,11 @@ resource "azurerm_network_interface" "vm-spoke1-web-01" {
     public_ip_address_id = azurerm_public_ip.vm1-pip.id
 
   }
+
+  depends_on = [ azurerm_public_ip.vm1-pip ]
+
 }
-output "nic-id" {
+output "nic-01-id" {
   value = azurerm_network_interface.vm-spoke1-web-01.id
 }
 
@@ -76,14 +168,27 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
     sku       = "2016-Datacenter"
     version   = "latest"
   }
+  
+  depends_on = [ azurerm_network_interface.vm-spoke1-web-01 ]
+
+
 }
 
 
+resource "azurerm_public_ip" "vm2-pip" {
+  name                = "vmcidb01-pip"
+  resource_group_name = data.azurerm_resource_group.rg3.name
+  location            = data.azurerm_resource_group.rg3.location
+  allocation_method   = "Dynamic"
 
+  tags = {
+    environment = "Production"
+  }
+}
 
 
 resource "azurerm_network_interface" "vm-spoke2-db-01" {
-  name                = "nic-${var.prefix-db}-02"
+  name                = "nic-${var.prefix-spoke2-db}-02"
   location            = data.azurerm_resource_group.rg3.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -93,9 +198,14 @@ resource "azurerm_network_interface" "vm-spoke2-db-01" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id = azurerm_public_ip.vm2-pip.id
   }
+  
+  depends_on = [ azurerm_public_ip.vm2-pip ]
+
 }
 
-
+output "nic-02-id" {
+  value = azurerm_network_interface.vm-spoke2-db-01.id
+}
 
 resource "azurerm_windows_virtual_machine" "vm-ci-spoke2-db-01" {
   name                  = "vmcidb01"
@@ -118,29 +228,15 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke2-db-01" {
     sku       = "2016-Datacenter"
     version   = "latest"
   }
+
+  depends_on = [ azurerm_network_interface.vm-spoke2-db-01 ]
+
+
 }
 
 
 
-resource "azurerm_public_ip" "vm1-pip" {
-  name                = "vmciweb01-pip"
-  resource_group_name = data.azurerm_resource_group.rg2.name
-  location            = data.azurerm_resource_group.rg2.location
-  allocation_method   = "Dynamic"
-
-  tags = {
-    environment = "Production"
-  }
-}
 
 
-resource "azurerm_public_ip" "vm2-pip" {
-  name                = "vmcidb01-pip"
-  resource_group_name = data.azurerm_resource_group.rg3.name
-  location            = data.azurerm_resource_group.rg3.location
-  allocation_method   = "Dynamic"
 
-  tags = {
-    environment = "Production"
-  }
-}
+
