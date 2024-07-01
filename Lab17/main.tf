@@ -19,6 +19,7 @@
 // Create Public IP resource and attached it the VM's to RDP directly only to Hub VM. Access spoke vm's from hub jump vm
 // Create Route Table module and create 3 Route Table
 // Create Prod Folder inside Platform Module, and update all files with env and location variables and data 
+// VNet peering for Spoke1-Hub and Spoke2-hub
 
 module "Platform" {
   source = "./Platform"

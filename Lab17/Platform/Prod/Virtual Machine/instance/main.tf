@@ -134,7 +134,7 @@ resource "azurerm_network_interface" "vm-spoke1-web-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.spoke1-web.id
     private_ip_address_allocation = "Dynamic"
-    //public_ip_address_id = azurerm_public_ip.vm1-pip.id                   Removing this to have access to this VM only from the HUb Jump Server
+    public_ip_address_id = azurerm_public_ip.vm1-pip.id                   //Removing this to have access to this VM only from the HUb Jump Server
 
   }
 
@@ -196,7 +196,7 @@ resource "azurerm_network_interface" "vm-spoke2-db-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.spoke2-db.id
     private_ip_address_allocation = "Dynamic"
-    //public_ip_address_id = azurerm_public_ip.vm2-pip.id                                 Removing this to have access to this VM only from the HUb Jump Server
+    public_ip_address_id = azurerm_public_ip.vm2-pip.id                                // Removing this to have access to this VM only from the HUb Jump Server
   }
   
   depends_on = [ azurerm_public_ip.vm2-pip ]

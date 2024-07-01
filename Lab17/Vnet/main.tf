@@ -71,3 +71,54 @@ resource "azurerm_virtual_network" "vnet-03" {
     module.resource_group
   ]
 }
+
+
+resource "azurerm_virtual_network_peering" "hub-spoke1" {
+  name = "hub-spoke1"
+  resource_group_name = module.resource_group.rg-01
+  virtual_network_name = azurerm_virtual_network.vnet-01.name
+  remote_virtual_network_id = azurerm_virtual_network.vnet-02.id
+  allow_forwarded_traffic = true
+  allow_virtual_network_access = true
+
+  depends_on = [ azurerm_virtual_network.vnet-01,azurerm_virtual_network.vnet-02,azurerm_virtual_network.vnet-03 ]
+}
+
+
+
+resource "azurerm_virtual_network_peering" "hub-spoke2" {
+  name = "hub-spoke2"
+  resource_group_name = module.resource_group.rg-01
+  virtual_network_name = azurerm_virtual_network.vnet-01.name
+  remote_virtual_network_id = azurerm_virtual_network.vnet-03.id
+  allow_forwarded_traffic = true
+  allow_virtual_network_access = true
+
+  depends_on = [ azurerm_virtual_network.vnet-01,azurerm_virtual_network.vnet-02,azurerm_virtual_network.vnet-03 ]
+}
+
+
+resource "azurerm_virtual_network_peering" "spoke1-hub" {
+  name = "spoke1-hub"
+  resource_group_name = module.resource_group.rg-02
+  virtual_network_name = azurerm_virtual_network.vnet-02.name
+  remote_virtual_network_id = azurerm_virtual_network.vnet-01.id
+  allow_forwarded_traffic = true
+  allow_virtual_network_access = true
+
+  depends_on = [ azurerm_virtual_network.vnet-01,azurerm_virtual_network.vnet-02,azurerm_virtual_network.vnet-03 ]
+}
+
+
+
+resource "azurerm_virtual_network_peering" "spoke2-hub" {
+  name = "spoke2-hub"
+  resource_group_name = module.resource_group.rg-03
+  virtual_network_name = azurerm_virtual_network.vnet-03.name
+  remote_virtual_network_id = azurerm_virtual_network.vnet-01.id
+  allow_forwarded_traffic = true
+  allow_virtual_network_access = true
+
+  depends_on = [ azurerm_virtual_network.vnet-01,azurerm_virtual_network.vnet-02,azurerm_virtual_network.vnet-03 ]
+}
+
