@@ -9,7 +9,7 @@ variable "vnet-hub" {
   default = "hub"
 }
 
-variable "location" {
+variable "region" {
   type    = string
   default = "ci"
 }

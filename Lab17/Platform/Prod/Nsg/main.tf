@@ -8,7 +8,7 @@ output "id" {
   value = data.azurerm_resource_group.rg1.id
 }
 resource "azurerm_network_security_group" "nsg-hub-identity" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-hub}-identity-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-identity-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg1.name
 
@@ -47,7 +47,7 @@ resource "azurerm_subnet_network_security_group_association" "hub-identity-subne
 }
 
 resource "azurerm_network_security_group" "nsg-hub-mgmt" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-hub}-mgmt-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-mgmt-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg1.name
 
@@ -89,7 +89,7 @@ resource "azurerm_subnet_network_security_group_association" "hub-mgmt-subnet-ns
 
 
 resource "azurerm_network_security_group" "nsg-hub-connectivity" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-hub}-connectivity-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-connectivity-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg1.name
 
@@ -140,7 +140,7 @@ output "rg-spoke1" {
 }
 
 resource "azurerm_network_security_group" "nsg-spoke1-web" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke1}-web-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-web-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -184,7 +184,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-web-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke1-app" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke1}-app-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-app-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -224,7 +224,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-app-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke1-db" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke1}-db-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-db-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -270,7 +270,7 @@ output "rg-spoke2" {
 }
 
 resource "azurerm_network_security_group" "nsg-spoke2-web" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke2}-web-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-web-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -314,7 +314,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke2-web-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke2-app" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke2}-app-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-app-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -354,7 +354,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke2-app-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke2-db" {
-  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke2}-db-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-db-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
