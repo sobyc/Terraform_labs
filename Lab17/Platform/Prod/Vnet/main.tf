@@ -5,7 +5,7 @@ module "resource_group" {
 }
 
 resource "azurerm_virtual_network" "vnet-01" {
-  name                = "vnet-${var.env}-${var.vnet-hub}-01"
+  name                = "vnet-${var.location}-${var.vnet-hub}-01"
   location            = var.location
   address_space       = ["${var.address_space-vnet-01}"]
   resource_group_name = module.resource_group.rg-01
@@ -33,7 +33,7 @@ resource "azurerm_subnet" "subnet-vnet-01" {
 
 
 resource "azurerm_virtual_network" "vnet-02" {
-  name                = "vnet-${var.env}-${var.vnet-spoke}-01"
+  name                = "vnet-${var.location}-${var.env}-${var.vnet-spoke}-01"
   location            = var.location
   address_space       = ["${var.address_space-vnet-02}"]
   resource_group_name = module.resource_group.rg-02
@@ -60,7 +60,7 @@ resource "azurerm_subnet" "subnet-vnet-02" {
 }
 */
 resource "azurerm_virtual_network" "vnet-03" {
-  name                = "vnet-${var.env}-${var.vnet-spoke}-02"
+  name                = "vnet-${var.location}-${var.env}-${var.vnet-spoke}-02"
   location            = var.location
   address_space       = ["${var.address_space-vnet-03}"]
   resource_group_name = module.resource_group.rg-03

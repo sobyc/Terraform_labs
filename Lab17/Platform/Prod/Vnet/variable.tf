@@ -15,12 +15,17 @@ variable "vnet-hub" {
 
 variable "env" {
   type    = string
-  default = "ci"
+  default = "prd"
 }
 
 variable "vnet-spoke" {
   type    = string
   default = "spoke"
+}
+
+variable "location" {
+  type    = string
+  default = "ci"
 }
 
 

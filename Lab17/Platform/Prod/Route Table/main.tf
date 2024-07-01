@@ -1,7 +1,7 @@
 #Azure Generic Route Table Module
 
 data "azurerm_resource_group" "rg1" {
-  name = "rg-ci-hub-01"
+  name = "rg-ci-prd-hub-01"
 }
 
 output "id" {
@@ -10,7 +10,7 @@ output "id" {
 
 
 resource "azurerm_route_table" "rt-hub-identity" {
-  name                          = "rt-${var.env}-${var.vnet-hub}-identity-01"
+  name                          = "rt-${var.location}-${var.env}-${var.vnet-hub}-identity-01"
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.rg1.name
   disable_bgp_route_propagation = false
@@ -27,9 +27,9 @@ resource "azurerm_route_table" "rt-hub-identity" {
 }
 
 data "azurerm_subnet" "hub-identity" {
-  name                 = "snet-ci-hub-identity-01"
-  virtual_network_name = "vnet-ci-hub-01"
-  resource_group_name  = "rg-ci-hub-01"
+  name                 = "snet-ci-prd-hub-identity-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id_identity" {
@@ -46,7 +46,7 @@ resource "azurerm_subnet_route_table_association" "hub-identity-subnet-rt" {
 
 
 resource "azurerm_route_table" "rt-hub-mgmt" {
-  name                          = "rt-${var.env}-${var.vnet-hub}-mgmt-01"
+  name                          = "rt-${var.location}-${var.env}-${var.vnet-hub}-mgmt-01"
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.rg1.name
   disable_bgp_route_propagation = false
@@ -63,9 +63,9 @@ resource "azurerm_route_table" "rt-hub-mgmt" {
 }
 
 data "azurerm_subnet" "hub-mgmt" {
-  name                 = "snet-ci-hub-mgmt-01"
-  virtual_network_name = "vnet-ci-hub-01"
-  resource_group_name  = "rg-ci-hub-01"
+  name                 = "snet-ci-prd-hub-mgmt-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "mgmt" {

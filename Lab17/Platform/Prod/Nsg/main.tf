@@ -1,14 +1,14 @@
 #Azure Generic NSG Module
 
 data "azurerm_resource_group" "rg1" {
-  name = "rg-ci-hub-01"
+  name = "rg-ci-prd-hub-01"
 }
 
 output "id" {
   value = data.azurerm_resource_group.rg1.id
 }
 resource "azurerm_network_security_group" "nsg-hub-identity" {
-  name                = "nsg-${var.env}-${var.vnet-hub}-identity-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-hub}-identity-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg1.name
 
@@ -31,9 +31,9 @@ resource "azurerm_network_security_group" "nsg-hub-identity" {
 }
 
 data "azurerm_subnet" "hub-identity" {
-  name                 = "snet-ci-hub-identity-01"
-  virtual_network_name = "vnet-ci-hub-01"
-  resource_group_name  = "rg-ci-hub-01"
+  name                 = "snet-ci-prd-hub-identity-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id_identity" {
@@ -47,7 +47,7 @@ resource "azurerm_subnet_network_security_group_association" "hub-identity-subne
 }
 
 resource "azurerm_network_security_group" "nsg-hub-mgmt" {
-  name                = "nsg-${var.env}-${var.vnet-hub}-mgmt-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-hub}-mgmt-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg1.name
 
@@ -72,9 +72,9 @@ resource "azurerm_network_security_group" "nsg-hub-mgmt" {
 
 
 data "azurerm_subnet" "hub-mgmt" {
-  name                 = "snet-ci-hub-mgmt-01"
-  virtual_network_name = "vnet-ci-hub-01"
-  resource_group_name  = "rg-ci-hub-01"
+  name                 = "snet-ci-prd-hub-mgmt-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id" {
@@ -89,7 +89,7 @@ resource "azurerm_subnet_network_security_group_association" "hub-mgmt-subnet-ns
 
 
 resource "azurerm_network_security_group" "nsg-hub-connectivity" {
-  name                = "nsg-${var.env}-${var.vnet-hub}-connectivity-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-hub}-connectivity-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg1.name
 
@@ -112,9 +112,9 @@ resource "azurerm_network_security_group" "nsg-hub-connectivity" {
 }
 
 data "azurerm_subnet" "hub-connectivity" {
-  name                 = "snet-ci-hub-connectivity-01"
-  virtual_network_name = "vnet-ci-hub-01"
-  resource_group_name  = "rg-ci-hub-01"
+  name                 = "snet-ci-prd-hub-connectivity-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id_connectivity" {
@@ -132,7 +132,7 @@ resource "azurerm_subnet_network_security_group_association" "hub-connectivity-s
 
 
 data "azurerm_resource_group" "rg2" {
-  name = "rg-ci-spoke-01"
+  name = "rg-ci-prd-spoke-01"
 }
 
 output "rg-spoke1" {
@@ -140,7 +140,7 @@ output "rg-spoke1" {
 }
 
 resource "azurerm_network_security_group" "nsg-spoke1-web" {
-  name                = "nsg-${var.env}-${var.vnet-spoke1}-web-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke1}-web-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -163,9 +163,9 @@ resource "azurerm_network_security_group" "nsg-spoke1-web" {
 }
 
 data "azurerm_subnet" "spoke1-web" {
-  name                 = "snet-ci-spoke1-web-01"
-  virtual_network_name = "vnet-ci-spoke-01"
-  resource_group_name  = "rg-ci-spoke-01"
+  name                 = "snet-ci-prd-spoke1-web-01"
+  virtual_network_name = "vnet-ci-prd-spoke-01"
+  resource_group_name  = "rg-ci-prd-spoke-01"
 }
 
 output "subnet_id_spoke1_web" {
@@ -184,7 +184,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-web-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke1-app" {
-  name                = "nsg-${var.env}-${var.vnet-spoke1}-app-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke1}-app-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -207,9 +207,9 @@ resource "azurerm_network_security_group" "nsg-spoke1-app" {
 }
 
 data "azurerm_subnet" "spoke1-app" {
-  name                 = "snet-ci-spoke1-app-01"
-  virtual_network_name = "vnet-ci-spoke-01"
-  resource_group_name  = "rg-ci-spoke-01"
+  name                 = "snet-ci-prd-spoke1-app-01"
+  virtual_network_name = "vnet-ci-prd-spoke-01"
+  resource_group_name  = "rg-ci-prd-spoke-01"
 }
 
 output "subnet_id_spoke1_app" {
@@ -224,7 +224,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-app-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke1-db" {
-  name                = "nsg-${var.env}-${var.vnet-spoke1}-db-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke1}-db-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -247,9 +247,9 @@ resource "azurerm_network_security_group" "nsg-spoke1-db" {
 }
 
 data "azurerm_subnet" "spoke1-db" {
-  name                 = "snet-ci-spoke1-db-01"
-  virtual_network_name = "vnet-ci-spoke-01"
-  resource_group_name  = "rg-ci-spoke-01"
+  name                 = "snet-ci-prd-spoke1-db-01"
+  virtual_network_name = "vnet-ci-prd-spoke-01"
+  resource_group_name  = "rg-ci-prd-spoke-01"
 }
 
 output "subnet_id_spoke1_db" {
@@ -262,7 +262,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-db-subnet-n
 }
 
 data "azurerm_resource_group" "rg3" {
-  name = "rg-ci-spoke-02"
+  name = "rg-ci-prd-spoke-02"
 }
 
 output "rg-spoke2" {
@@ -270,7 +270,7 @@ output "rg-spoke2" {
 }
 
 resource "azurerm_network_security_group" "nsg-spoke2-web" {
-  name                = "nsg-${var.env}-${var.vnet-spoke2}-web-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke2}-web-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -293,9 +293,9 @@ resource "azurerm_network_security_group" "nsg-spoke2-web" {
 }
 
 data "azurerm_subnet" "spoke2-web" {
-  name                 = "snet-ci-spoke2-web-01"
-  virtual_network_name = "vnet-ci-spoke-02"
-  resource_group_name  = "rg-ci-spoke-02"
+  name                 = "snet-ci-prd-spoke2-web-01"
+  virtual_network_name = "vnet-ci-prd-spoke-02"
+  resource_group_name  = "rg-ci-prd-spoke-02"
 }
 
 output "subnet_id_spoke2_web" {
@@ -314,7 +314,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke2-web-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke2-app" {
-  name                = "nsg-${var.env}-${var.vnet-spoke2}-app-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke2}-app-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -337,9 +337,9 @@ resource "azurerm_network_security_group" "nsg-spoke2-app" {
 }
 
 data "azurerm_subnet" "spoke2-app" {
-  name                 = "snet-ci-spoke2-app-01"
-  virtual_network_name = "vnet-ci-spoke-02"
-  resource_group_name  = "rg-ci-spoke-02"
+  name                 = "snet-ci-prd-spoke2-app-01"
+  virtual_network_name = "vnet-ci-prd-spoke-02"
+  resource_group_name  = "rg-ci-prd-spoke-02"
 }
 
 output "subnet_id_spoke2_app" {
@@ -354,7 +354,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke2-app-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke2-db" {
-  name                = "nsg-${var.env}-${var.vnet-spoke2}-db-01"
+  name                = "nsg-${var.location}-${var.env}-${var.vnet-spoke2}-db-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -377,9 +377,9 @@ resource "azurerm_network_security_group" "nsg-spoke2-db" {
 }
 
 data "azurerm_subnet" "spoke2-db" {
-  name                 = "snet-ci-spoke2-db-01"
-  virtual_network_name = "vnet-ci-spoke-02"
-  resource_group_name  = "rg-ci-spoke-02"
+  name                 = "snet-ci-prd-spoke2-db-01"
+  virtual_network_name = "vnet-ci-prd-spoke-02"
+  resource_group_name  = "rg-ci-prd-spoke-02"
 }
 
 output "subnet_id_spoke2_db" {

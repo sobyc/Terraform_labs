@@ -1,5 +1,5 @@
 data "azurerm_resource_group" "rg1" {
-  name = "rg-ci-hub-01"
+  name = "rg-ci-prd-hub-01"
 }
 
 output "rg-hub" {
@@ -7,7 +7,7 @@ output "rg-hub" {
 }
 
 data "azurerm_resource_group" "rg2" {
-  name = "rg-ci-spoke-01"
+  name = "rg-ci-prd-spoke-01"
 }
 
 output "rg-spoke1" {
@@ -15,7 +15,7 @@ output "rg-spoke1" {
 }
 
 data "azurerm_resource_group" "rg3" {
-  name = "rg-ci-spoke-02"
+  name = "rg-ci-prd-spoke-02"
 }
 
 output "rg-spoke2" {
@@ -24,9 +24,9 @@ output "rg-spoke2" {
 
 
 data "azurerm_subnet" "hub-mgmt" {
-  name                 = "snet-ci-hub-mgmt-01"
-  virtual_network_name = "vnet-ci-hub-01"
-  resource_group_name  = "rg-ci-hub-01"
+  name                 = "snet-ci-prd-hub-mgmt-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id_hub_mgmt" {
@@ -34,9 +34,9 @@ output "subnet_id_hub_mgmt" {
 }
 
 data "azurerm_subnet" "spoke1-web" {
-  name                 = "snet-ci-spoke1-web-01"
-  virtual_network_name = "vnet-ci-spoke-01"
-  resource_group_name  = "rg-ci-spoke-01"
+  name                 = "snet-ci-prd-spoke1-web-01"
+  virtual_network_name = "vnet-ci-prd-spoke-01"
+  resource_group_name  = "rg-ci-prd-spoke-01"
 }
 
 output "subnet_id_spoke1_web" {
@@ -44,9 +44,9 @@ output "subnet_id_spoke1_web" {
 }
 
 data "azurerm_subnet" "spoke2-db" {
-  name                 = "snet-ci-spoke2-db-01"
-  virtual_network_name = "vnet-ci-spoke-02"
-  resource_group_name  = "rg-ci-spoke-02"
+  name                 = "snet-ci-prd-spoke2-db-01"
+  virtual_network_name = "vnet-ci-prd-spoke-02"
+  resource_group_name  = "rg-ci-prd-spoke-02"
 }
 
 output "subnet_id_spoke2_db" {
@@ -55,7 +55,7 @@ output "subnet_id_spoke2_db" {
 
 
 resource "azurerm_public_ip" "vm0-pip" {
-  name                = "vmcihmt01-pip"
+  name                = "vmciphmt01-pip"
   resource_group_name = data.azurerm_resource_group.rg1.name
   location            = data.azurerm_resource_group.rg1.location
   allocation_method   = "Dynamic"
@@ -87,7 +87,7 @@ output "nic-00-id" {
 }
 
 resource "azurerm_windows_virtual_machine" "vm-ci-hub-mgmt-01" {
-  name                  = "vmcihmt01"
+  name                  = "vmciphmt01"
   resource_group_name   = data.azurerm_resource_group.rg1.name
   location              = data.azurerm_resource_group.rg1.location
   size                  = "Standard_D2s_v3"
@@ -115,7 +115,7 @@ resource "azurerm_windows_virtual_machine" "vm-ci-hub-mgmt-01" {
 
 
 resource "azurerm_public_ip" "vm1-pip" {
-  name                = "vmciweb01-pip"
+  name                = "vmcipweb01-pip"
   resource_group_name = data.azurerm_resource_group.rg2.name
   location            = data.azurerm_resource_group.rg2.location
   allocation_method   = "Dynamic"
@@ -148,7 +148,7 @@ output "nic-01-id" {
 
 
 resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
-  name                  = "vmciweb01"
+  name                  = "vmcipweb01"
   resource_group_name   = data.azurerm_resource_group.rg2.name
   location              = data.azurerm_resource_group.rg2.location
   size                  = "Standard_D2s_v3"
@@ -176,7 +176,7 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
 
 
 resource "azurerm_public_ip" "vm2-pip" {
-  name                = "vmcidb01-pip"
+  name                = "vmcipdb01-pip"
   resource_group_name = data.azurerm_resource_group.rg3.name
   location            = data.azurerm_resource_group.rg3.location
   allocation_method   = "Dynamic"
@@ -208,7 +208,7 @@ output "nic-02-id" {
 }
 
 resource "azurerm_windows_virtual_machine" "vm-ci-spoke2-db-01" {
-  name                  = "vmcidb01"
+  name                  = "vmcipdb01"
   resource_group_name   = data.azurerm_resource_group.rg3.name
   location              = data.azurerm_resource_group.rg3.location
   size                  = "Standard_D2s_v3"

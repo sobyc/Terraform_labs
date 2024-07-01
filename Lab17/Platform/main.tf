@@ -3,6 +3,6 @@
 
 
 module "subnet" {
-  source = "./Subnet"
+  source = "./Prod/Subnet"
 }
 

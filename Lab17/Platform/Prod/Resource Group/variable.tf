@@ -10,7 +10,7 @@ variable "hub-base" {
 
 variable "env" {
   type    = string
-  default = "ci"
+  default = "prd"
 }
 
 variable "location" {
@@ -19,4 +19,7 @@ variable "location" {
 }
 
 
-
+variable "location" {
+  type    = string
+  default = "ci"
+}

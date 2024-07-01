@@ -7,7 +7,7 @@ variable "subnet_prefixes-vnet-01" {
 
 variable "subnet_names-vnet-hub" {
   description = "A list of public subnets inside the vNet1."
-  default     = ["GatewaySubnet","AzureFirewallSubnet","snet-ci-hub-identity-01", "snet-ci-hub-mgmt-01", "snet-ci-hub-connectivity-01"]
+  default     = ["GatewaySubnet","AzureFirewallSubnet","snet-ci-prd-hub-identity-01", "snet-ci-prd-hub-mgmt-01", "snet-ci-prd-hub-connectivity-01"]
 }
 
 variable "subnet_prefixes-vnet-02" {
@@ -17,7 +17,7 @@ variable "subnet_prefixes-vnet-02" {
 
 variable "subnet_names-vnet-spoke1" {
   description = "A list of public subnets inside the vNet2."
-  default     = ["snet-ci-spoke1-web-01", "snet-ci-spoke1-app-01", "snet-ci-spoke1-db-01"]
+  default     = ["snet-ci-prd-spoke1-web-01", "snet-ci-prd-spoke1-app-01", "snet-ci-prd-spoke1-db-01"]
 }
 
 variable "subnet_prefixes-vnet-03" {
@@ -28,5 +28,5 @@ variable "subnet_prefixes-vnet-03" {
 
 variable "subnet_names-vnet-spoke2" {
   description = "A list of public subnets inside the vNet3."
-  default     = ["snet-ci-spoke2-web-01", "snet-ci-spoke2-app-01", "snet-ci-spoke2-db-01"]
+  default     = ["snet-ci-prd-spoke2-web-01", "snet-ci-prd-spoke2-app-01", "snet-ci-prd-spoke2-db-01"]
 }

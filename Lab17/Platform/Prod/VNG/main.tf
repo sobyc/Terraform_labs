@@ -7,8 +7,8 @@ output "id" {
 }
 
 data "azurerm_virtual_network" "vnet-hub" {
-  name                = "vnet-ci-hub-01"
-  resource_group_name = "rg-ci-hub-01"
+  name                = "vnet-ci-prd-hub-01"
+  resource_group_name = "rg-ci-prd-hub-01"
 }
 
 output "virtual_network_name" {
