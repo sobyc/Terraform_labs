@@ -19,7 +19,7 @@ variable "location" {
 }
 
 
-variable "location" {
+variable "region" {
   type    = string
   default = "ci"
 }

@@ -10,7 +10,7 @@ output "id" {
 
 
 resource "azurerm_route_table" "rt-hub-identity" {
-  name                          = "rt-${var.location}-${var.env}-${var.vnet-hub}-identity-01"
+  name                          = "rt-${var.region}-${var.env}-${var.vnet-hub}-identity-01"
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.rg1.name
   disable_bgp_route_propagation = false
@@ -46,7 +46,7 @@ resource "azurerm_subnet_route_table_association" "hub-identity-subnet-rt" {
 
 
 resource "azurerm_route_table" "rt-hub-mgmt" {
-  name                          = "rt-${var.location}-${var.env}-${var.vnet-hub}-mgmt-01"
+  name                          = "rt-${var.region}-${var.env}-${var.vnet-hub}-mgmt-01"
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.rg1.name
   disable_bgp_route_propagation = false
