@@ -1,74 +1,75 @@
-#Azure Generic Route Table Module
+#Azure Generic NSG Module
 
 data "azurerm_resource_group" "rg1" {
   name = "rg-ci-prd-hub-01"
 }
 
-output "rg1-id" {
+output "id" {
   value = data.azurerm_resource_group.rg1.id
 }
+resource "azurerm_network_security_group" "nsg-hub-identity" {
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-identity-01"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg1.name
 
-
-resource "azurerm_route_table" "rt-hub-firewall" {
-  name                          = "rt-${var.region}-${var.env}-${var.vnet-hub}-firewall-01"
-  location                      = var.location
-  resource_group_name           = data.azurerm_resource_group.rg1.name
-  disable_bgp_route_propagation = false
-
-  route {
-    name                        = "route1"
-    address_prefix              = "10.0.0.0/8"
-    next_hop_type               = "VirtualAppliance"
-    next_hop_in_ip_address      = "10.0.1.4"  
-  }
-   
-  route {
-    name                        = "route-internet"
-    address_prefix              = "0.0.0.0/0"
-    next_hop_type               = "Internet"
+  security_rule {
+    name                       = "test123"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 
   tags = {
     environment = "Production"
   }
+
 }
 
-data "azurerm_subnet" "hub-firewall" {
-  name                          = "AzureFirewallSubnet"
-  virtual_network_name          = "vnet-ci-prd-hub-01"
-  resource_group_name           = "rg-ci-prd-hub-01"
+data "azurerm_subnet" "hub-identity" {
+  name                 = "snet-ci-prd-hub-identity-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id_identity" {
-  value = data.azurerm_subnet.hub-firewall.id
-}
-
-resource "azurerm_subnet_route_table_association" "hub-firewall-subnet-rt" {
-  subnet_id      = data.azurerm_subnet.hub-firewall.id
-  route_table_id = azurerm_route_table.rt-hub-firewall.id
+  value = data.azurerm_subnet.hub-identity.id
 }
 
 
+resource "azurerm_subnet_network_security_group_association" "hub-identity-subnet-nsg" {
+  subnet_id                 = data.azurerm_subnet.hub-identity.id
+  network_security_group_id = azurerm_network_security_group.nsg-hub-identity.id
+}
 
+resource "azurerm_network_security_group" "nsg-hub-mgmt" {
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-mgmt-01"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg1.name
 
-
-resource "azurerm_route_table" "rt-hub-mgmt" {
-  name                          = "rt-${var.region}-${var.env}-${var.vnet-hub}-mgmt-01"
-  location                      = var.location
-  resource_group_name           = data.azurerm_resource_group.rg1.name
-  disable_bgp_route_propagation = false
-
-  route {
-    name                        = "route1"
-    address_prefix              = "10.0.0.0/8"
-    next_hop_type               = "VirtualAppliance"
-    next_hop_in_ip_address      = "10.0.1.4" 
+  security_rule {
+    name                       = "test123"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 
   tags = {
     environment = "Production"
   }
+
 }
+
+
 
 data "azurerm_subnet" "hub-mgmt" {
   name                 = "snet-ci-prd-hub-mgmt-01"
@@ -76,109 +77,19 @@ data "azurerm_subnet" "hub-mgmt" {
   resource_group_name  = "rg-ci-prd-hub-01"
 }
 
-output "mgmt" {
+output "subnet_id" {
   value = data.azurerm_subnet.hub-mgmt.id
 }
 
-resource "azurerm_subnet_route_table_association" "hub-mgmt-subnet-rt" {
-  subnet_id      = data.azurerm_subnet.hub-mgmt.id
-  route_table_id = azurerm_route_table.rt-hub-mgmt.id
+
+resource "azurerm_subnet_network_security_group_association" "hub-mgmt-subnet-nsg" {
+  subnet_id                 = data.azurerm_subnet.hub-mgmt.id
+  network_security_group_id = azurerm_network_security_group.nsg-hub-mgmt.id
 }
-
-
-data "azurerm_resource_group" "rg2" {
-  name = "rg-ci-prd-spoke-01"
-}
-
-output "rg2-id" {
-  value = data.azurerm_resource_group.rg2.id
-}
-
-
-resource "azurerm_route_table" "rt-spoke1-web" {
-  name                          = "rt-${var.region}-${var.env}-${var.vnet-spoke1}-web-01"
-  location                      = var.location
-  resource_group_name           = data.azurerm_resource_group.rg2.name
-  disable_bgp_route_propagation = false
-
-  route {
-    name                        = "route1"
-    address_prefix              = "10.0.0.0/8"
-    next_hop_type               = "VirtualAppliance"
-    next_hop_in_ip_address      = "10.0.1.4"  
-  }
-
-  tags = {
-    environment = "Production"
-  }
-}
-
-data "azurerm_subnet" "spoke1-web" {
-  name                 = "snet-ci-prd-spoke1-web-01"
-  virtual_network_name = "vnet-ci-prd-spoke-01"
-  resource_group_name  = "rg-ci-prd-spoke-01"
-}
-
-output "subnet_id_spoke1_web" {
-  value = data.azurerm_subnet.spoke1-web
-}
-
-resource "azurerm_subnet_route_table_association" "spoke1-web-subnet-rt" {
-  subnet_id      = data.azurerm_subnet.spoke1-web.id
-  route_table_id = azurerm_route_table.rt-spoke1-web.id
-}
-
-
-
-data "azurerm_resource_group" "rg3" {
-  name = "rg-ci-prd-spoke-02"
-}
-
-output "rg3-id" {
-  value = data.azurerm_resource_group.rg3.id
-}
-
-
-resource "azurerm_route_table" "rt-spoke2-db" {
-  name                          = "rt-${var.region}-${var.env}-${var.vnet-spoke2}-db-01"
-  location                      = var.location
-  resource_group_name           = data.azurerm_resource_group.rg3.name
-  disable_bgp_route_propagation = false
-
-  route {
-    name                        = "route1"
-    address_prefix              = "10.0.0.0/8"
-    next_hop_type               = "VirtualAppliance"
-    next_hop_in_ip_address      = "10.0.1.4"  
-  }
-
-  tags = {
-    environment = "Production"
-  }
-}
-
-data "azurerm_subnet" "spoke2-db" {
-  name                 = "snet-ci-prd-spoke2-db-01"
-  virtual_network_name = "vnet-ci-prd-spoke-02"
-  resource_group_name  = "rg-ci-prd-spoke-02"
-}
-
-output "subnet_id_spoke2_db" {
-  value = data.azurerm_subnet.spoke2-db
-}
-
-resource "azurerm_subnet_route_table_association" "spoke2-db-subnet-rt" {
-  subnet_id      = data.azurerm_subnet.spoke2-db.id
-  route_table_id = azurerm_route_table.rt-spoke2-db.id
-}
-
-
-/*
-
 
 
 resource "azurerm_network_security_group" "nsg-hub-connectivity" {
-  name                = "nsg-${var.env}-${var.vnet-hub}-connectivity-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-connectivity-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg1.name
 
@@ -201,9 +112,9 @@ resource "azurerm_network_security_group" "nsg-hub-connectivity" {
 }
 
 data "azurerm_subnet" "hub-connectivity" {
-  name                 = "snet-ci-hub-connectivity-01"
-  virtual_network_name = "vnet-ci-hub-01"
-  resource_group_name  = "rg-ci-hub-01"
+  name                 = "snet-ci-prd-hub-connectivity-01"
+  virtual_network_name = "vnet-ci-prd-hub-01"
+  resource_group_name  = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id_connectivity" {
@@ -221,7 +132,7 @@ resource "azurerm_subnet_network_security_group_association" "hub-connectivity-s
 
 
 data "azurerm_resource_group" "rg2" {
-  name = "rg-ci-spoke-01"
+  name = "rg-ci-prd-spoke-01"
 }
 
 output "rg-spoke1" {
@@ -229,7 +140,7 @@ output "rg-spoke1" {
 }
 
 resource "azurerm_network_security_group" "nsg-spoke1-web" {
-  name                = "nsg-${var.env}-${var.vnet-spoke1}-web-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-web-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -252,9 +163,9 @@ resource "azurerm_network_security_group" "nsg-spoke1-web" {
 }
 
 data "azurerm_subnet" "spoke1-web" {
-  name                 = "snet-ci-spoke1-web-01"
-  virtual_network_name = "vnet-ci-spoke-01"
-  resource_group_name  = "rg-ci-spoke-01"
+  name                 = "snet-ci-prd-spoke1-web-01"
+  virtual_network_name = "vnet-ci-prd-spoke-01"
+  resource_group_name  = "rg-ci-prd-spoke-01"
 }
 
 output "subnet_id_spoke1_web" {
@@ -273,7 +184,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-web-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke1-app" {
-  name                = "nsg-${var.env}-${var.vnet-spoke1}-app-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-app-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -296,9 +207,9 @@ resource "azurerm_network_security_group" "nsg-spoke1-app" {
 }
 
 data "azurerm_subnet" "spoke1-app" {
-  name                 = "snet-ci-spoke1-app-01"
-  virtual_network_name = "vnet-ci-spoke-01"
-  resource_group_name  = "rg-ci-spoke-01"
+  name                 = "snet-ci-prd-spoke1-app-01"
+  virtual_network_name = "vnet-ci-prd-spoke-01"
+  resource_group_name  = "rg-ci-prd-spoke-01"
 }
 
 output "subnet_id_spoke1_app" {
@@ -313,7 +224,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-app-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke1-db" {
-  name                = "nsg-${var.env}-${var.vnet-spoke1}-db-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-db-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg2.name
 
@@ -336,9 +247,9 @@ resource "azurerm_network_security_group" "nsg-spoke1-db" {
 }
 
 data "azurerm_subnet" "spoke1-db" {
-  name                 = "snet-ci-spoke1-db-01"
-  virtual_network_name = "vnet-ci-spoke-01"
-  resource_group_name  = "rg-ci-spoke-01"
+  name                 = "snet-ci-prd-spoke1-db-01"
+  virtual_network_name = "vnet-ci-prd-spoke-01"
+  resource_group_name  = "rg-ci-prd-spoke-01"
 }
 
 output "subnet_id_spoke1_db" {
@@ -351,7 +262,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke1-db-subnet-n
 }
 
 data "azurerm_resource_group" "rg3" {
-  name = "rg-ci-spoke-02"
+  name = "rg-ci-prd-spoke-02"
 }
 
 output "rg-spoke2" {
@@ -359,7 +270,7 @@ output "rg-spoke2" {
 }
 
 resource "azurerm_network_security_group" "nsg-spoke2-web" {
-  name                = "nsg-${var.env}-${var.vnet-spoke2}-web-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-web-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -382,9 +293,9 @@ resource "azurerm_network_security_group" "nsg-spoke2-web" {
 }
 
 data "azurerm_subnet" "spoke2-web" {
-  name                 = "snet-ci-spoke2-web-01"
-  virtual_network_name = "vnet-ci-spoke-02"
-  resource_group_name  = "rg-ci-spoke-02"
+  name                 = "snet-ci-prd-spoke2-web-01"
+  virtual_network_name = "vnet-ci-prd-spoke-02"
+  resource_group_name  = "rg-ci-prd-spoke-02"
 }
 
 output "subnet_id_spoke2_web" {
@@ -403,7 +314,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke2-web-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke2-app" {
-  name                = "nsg-${var.env}-${var.vnet-spoke2}-app-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-app-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -426,9 +337,9 @@ resource "azurerm_network_security_group" "nsg-spoke2-app" {
 }
 
 data "azurerm_subnet" "spoke2-app" {
-  name                 = "snet-ci-spoke2-app-01"
-  virtual_network_name = "vnet-ci-spoke-02"
-  resource_group_name  = "rg-ci-spoke-02"
+  name                 = "snet-ci-prd-spoke2-app-01"
+  virtual_network_name = "vnet-ci-prd-spoke-02"
+  resource_group_name  = "rg-ci-prd-spoke-02"
 }
 
 output "subnet_id_spoke2_app" {
@@ -443,7 +354,7 @@ resource "azurerm_subnet_network_security_group_association" "spoke2-app-subnet-
 
 
 resource "azurerm_network_security_group" "nsg-spoke2-db" {
-  name                = "nsg-${var.env}-${var.vnet-spoke2}-db-01"
+  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-db-01"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg3.name
 
@@ -466,9 +377,9 @@ resource "azurerm_network_security_group" "nsg-spoke2-db" {
 }
 
 data "azurerm_subnet" "spoke2-db" {
-  name                 = "snet-ci-spoke2-db-01"
-  virtual_network_name = "vnet-ci-spoke-02"
-  resource_group_name  = "rg-ci-spoke-02"
+  name                 = "snet-ci-prd-spoke2-db-01"
+  virtual_network_name = "vnet-ci-prd-spoke-02"
+  resource_group_name  = "rg-ci-prd-spoke-02"
 }
 
 output "subnet_id_spoke2_db" {
@@ -479,6 +390,3 @@ resource "azurerm_subnet_network_security_group_association" "spoke2-db-subnet-n
   subnet_id                 = data.azurerm_subnet.spoke2-db.id
   network_security_group_id = azurerm_network_security_group.nsg-spoke2-db.id
 }
-
-
-*/
