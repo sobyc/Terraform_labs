@@ -9,16 +9,23 @@ output "rg1-id" {
 }
 
 
-resource "azurerm_route_table" "rt-hub-identity" {
-  name                          = "rt-${var.region}-${var.env}-${var.vnet-hub}-identity-01"
+resource "azurerm_route_table" "rt-hub-firewall" {
+  name                          = "rt-${var.region}-${var.env}-${var.vnet-hub}-firewall-01"
   location                      = var.location
   resource_group_name           = data.azurerm_resource_group.rg1.name
   disable_bgp_route_propagation = false
 
   route {
-    name           = "route1"
-    address_prefix = "10.1.0.0/16"
-    next_hop_type  = "VnetLocal"  
+    name                        = "route1"
+    address_prefix              = "10.0.0.0/8"
+    next_hop_type               = "VirtualAppliance"
+    next_hop_in_ip_address      = "10.0.1.4"  
+  }
+   
+  route {
+    name                        = "route-internet"
+    address_prefix              = "0.0.0.0/0"
+    next_hop_type               = "Internet"
   }
 
   tags = {
@@ -26,19 +33,19 @@ resource "azurerm_route_table" "rt-hub-identity" {
   }
 }
 
-data "azurerm_subnet" "hub-identity" {
-  name                 = "snet-ci-prd-hub-identity-01"
-  virtual_network_name = "vnet-ci-prd-hub-01"
-  resource_group_name  = "rg-ci-prd-hub-01"
+data "azurerm_subnet" "hub-firewall" {
+  name                          = "AzureFirewallSubnet"
+  virtual_network_name          = "vnet-ci-prd-hub-01"
+  resource_group_name           = "rg-ci-prd-hub-01"
 }
 
 output "subnet_id_identity" {
-  value = data.azurerm_subnet.hub-identity.id
+  value = data.azurerm_subnet.hub-firewall.id
 }
 
-resource "azurerm_subnet_route_table_association" "hub-identity-subnet-rt" {
-  subnet_id      = data.azurerm_subnet.hub-identity.id
-  route_table_id = azurerm_route_table.rt-hub-identity.id
+resource "azurerm_subnet_route_table_association" "hub-firewall-subnet-rt" {
+  subnet_id      = data.azurerm_subnet.hub-firewall.id
+  route_table_id = azurerm_route_table.rt-hub-firewall.id
 }
 
 
@@ -52,9 +59,10 @@ resource "azurerm_route_table" "rt-hub-mgmt" {
   disable_bgp_route_propagation = false
 
   route {
-    name           = "route1"
-    address_prefix = "10.1.0.0/16"
-    next_hop_type  = "VnetLocal"  
+    name                        = "route1"
+    address_prefix              = "10.0.0.0/8"
+    next_hop_type               = "VirtualAppliance"
+    next_hop_in_ip_address      = "10.0.1.4" 
   }
 
   tags = {
@@ -94,9 +102,10 @@ resource "azurerm_route_table" "rt-spoke1-web" {
   disable_bgp_route_propagation = false
 
   route {
-    name           = "route1"
-    address_prefix = "10.1.0.0/16"
-    next_hop_type  = "VnetLocal"  
+    name                        = "route1"
+    address_prefix              = "10.0.0.0/8"
+    next_hop_type               = "VirtualAppliance"
+    next_hop_in_ip_address      = "10.0.1.4"  
   }
 
   tags = {
@@ -137,9 +146,10 @@ resource "azurerm_route_table" "rt-spoke2-db" {
   disable_bgp_route_propagation = false
 
   route {
-    name           = "route1"
-    address_prefix = "10.1.0.0/16"
-    next_hop_type  = "VnetLocal"  
+    name                        = "route1"
+    address_prefix              = "10.0.0.0/8"
+    next_hop_type               = "VirtualAppliance"
+    next_hop_in_ip_address      = "10.0.1.4"  
   }
 
   tags = {
