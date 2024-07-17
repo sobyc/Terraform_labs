@@ -1,3 +1,0 @@
-variable "firewall_rules" {
-  
-}

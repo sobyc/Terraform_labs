@@ -1,3 +1,0 @@
-variable "bu_name" {
-
-}
