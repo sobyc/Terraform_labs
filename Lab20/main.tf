@@ -21,8 +21,11 @@
 // Create Prod Folder inside Platform Module, and update all files with env and location variables and data 
 // VNet peering for Spoke1-Hub and Spoke2-hub
 // Create Azure Firewall
-// Create three virtual machine, one in each spokeie. Spoke1 , spoke2 and hub
+// Create 5 virtual machine, two in Spoke1 , two in spoke2 and one in hub vnet
 // Check connectivity from spoke1 vm to spoke 2 vm via Hub Firewall
+// Create 2 load Balancers, spoke 1 basic, spoke 2 standard
+// Spoke 1 external and Spoke 2 internal
+
 
 module "Platform" {
   source = "./Platform"

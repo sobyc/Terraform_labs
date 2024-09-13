@@ -58,7 +58,7 @@ resource "azurerm_public_ip" "vm0-pip" {
   name                = "vmciphmt01-pip"
   resource_group_name = data.azurerm_resource_group.rg1.name
   location            = data.azurerm_resource_group.rg1.location
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
 
   tags = {
     environment = "Production"
@@ -90,7 +90,7 @@ resource "azurerm_windows_virtual_machine" "vm-ci-hub-mgmt-01" {
   name                  = "vmciphmt01"
   resource_group_name   = data.azurerm_resource_group.rg1.name
   location              = data.azurerm_resource_group.rg1.location
-  size                  = "Standard_D2s_v3"
+  size                  = "Standard_B2s"
   admin_username        = "adminuser"
   admin_password        = "Windows@111"
   network_interface_ids = [azurerm_network_interface.vm-hub-mgmt-01.id, ]
@@ -118,7 +118,7 @@ resource "azurerm_public_ip" "vm1-pip" {
   name                = "vmcipweb01-pip"
   resource_group_name = data.azurerm_resource_group.rg2.name
   location            = data.azurerm_resource_group.rg2.location
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
 
   tags = {
     environment = "Production"
@@ -151,7 +151,7 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
   name                  = "vmcipweb01"
   resource_group_name   = data.azurerm_resource_group.rg2.name
   location              = data.azurerm_resource_group.rg2.location
-  size                  = "Standard_D2s_v3"
+  size                  = "Standard_B2s"
   admin_username        = "adminuser"
   admin_password        = "Windows@111"
   network_interface_ids = [azurerm_network_interface.vm-spoke1-web-01.id, ]
@@ -179,7 +179,7 @@ resource "azurerm_public_ip" "vm2-pip" {
   name                = "vmcipdb01-pip"
   resource_group_name = data.azurerm_resource_group.rg3.name
   location            = data.azurerm_resource_group.rg3.location
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
 
   tags = {
     environment = "Production"
