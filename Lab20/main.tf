@@ -20,7 +20,7 @@
 // Create Route Table module and create 3 Route Table
 // Create Prod Folder inside Platform Module, and update all files with env and location variables and data 
 // VNet peering for Spoke1-Hub and Spoke2-hub
-// Create Azure Firewall
+
 // Create 5 virtual machine, two in Spoke1 , two in spoke2 and one in hub vnet
 // Check connectivity from spoke1 vm to spoke 2 vm via Hub Firewall
 // Create 2 load Balancers, spoke 1 basic, spoke 2 standard
