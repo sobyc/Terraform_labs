@@ -6,10 +6,6 @@
 
 
 
-module "resource_group" {
-  source = "./Resource Group"
-}
-
 module "vnet" {
   source = "./Vnet"
 }
