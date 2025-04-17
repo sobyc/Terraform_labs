@@ -20,9 +20,22 @@
 // Create Route Table module and create 3 Route Table
 // Create Prod Folder inside Platform Module, and update all files with env and location variables and data 
 // VNet peering for Spoke1-Hub and Spoke2-hub
+<<<<<<< HEAD
 // Create Firewall Module and add any any rule to firewall
 // Create seperate module for Central India and West India locations
 // Call wi module after ci modules are created during tf apply execution
+=======
+<<<<<<<< HEAD:Lab18/main.tf
+//Create Firewall Module and add any any rule to firewall
+========
+// Create Azure Firewall
+// Create 5 virtual machine, two in Spoke1 , two in spoke2 and one in hub vnet
+// Check connectivity from spoke1 vm to spoke 2 vm via Hub Firewall
+// Create 2 load Balancers, spoke 1 basic, spoke 2 standard
+// Spoke 1 external and Spoke 2 internal
+
+>>>>>>>> 7594384f6d4516886dd80dd097b34d563db4aff7:Lab20/main.tf
+>>>>>>> 7594384f6d4516886dd80dd097b34d563db4aff7
 
 module "Platform" {
   source = "./Platform"

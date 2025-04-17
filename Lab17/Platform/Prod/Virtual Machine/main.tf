@@ -1,3 +1,0 @@
-module "instance" {
-  source = "./instance"
-}

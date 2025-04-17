@@ -1,0 +1,4 @@
+module "appgw" {
+  source = "./appgw"
+}
+

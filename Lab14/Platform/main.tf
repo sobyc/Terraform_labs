@@ -1,9 +1,0 @@
-
-
-
-
-
-module "subnet" {
-  source = "../Subnet"
-}
-
