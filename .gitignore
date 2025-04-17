@@ -14,3 +14,4 @@ override.tf.jason
 *_override.tf.jason
 *.terraform*
 */.terraform/
+*provider.tf
