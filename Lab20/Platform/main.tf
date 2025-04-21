@@ -1,6 +1,4 @@
 
-
-
 module "vnet" {
   source = "./Prod/Vnet"
 }
