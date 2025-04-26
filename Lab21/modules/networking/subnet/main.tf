@@ -1,18 +1,7 @@
-/*resource "azurerm_subnet" "subnet-hub" {
-  name                 = var.subnet_names_vnet_hub[count.index]
-  virtual_network_name = azurerm_virtual_network.vnet-main[count.index].name
-  resource_group_name  = azurerm_resource_group.rg-hub.name
-  address_prefixes     = ["${var.subnet_address_prefixes[count.index]}"]
-  count                = length(var.subnet_names_vnet_hub)
-
-
-
-}*/
-
-
-resource "azurerm_subnet" "subnet-hub" {
-  name                 = var.subnet_names_vnet_hub
-  virtual_network_name = var.vnet_name
-  address_prefixes     = var.address_prefixes
+resource "azurerm_subnet" "this" {
+  count                = var.subnet_count
+  name                 = "${var.subnet_prefix}-${count.index + 1}"
   resource_group_name  = var.resource_group_name
+  virtual_network_name = var.virtual_network_name
+  address_prefixes     = [cidrsubnet(var.vnet_cidr, 8, count.index)]
 }

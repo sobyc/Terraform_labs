@@ -1,36 +1,79 @@
+resource "azurerm_resource_group" "rg-01" {
+  name     = "rg-ci-hub-01"
+  location = "Central India"
+
+}
+
+resource "azurerm_resource_group" "rg-02" {
+  name     = "rg-ci-finance-01"
+  location = "Central India"
+
+}
+
+resource "azurerm_resource_group" "rg-03" {
+  name     = "rg-ci-hr-01"
+  location = "Central India"
+
+}
+
+
+
+
+
+locals {
+  vnets = [
+    {
+      name                = "vnet-ci-hub-01"
+      address_space       = ["10.0.0.0/16"]
+      location            = "Central India"
+      resource_group_name = azurerm_resource_group.rg-01.name
+    },
+    {
+      name                = "vnet-ci-finance-01"
+      address_space       = ["10.1.0.0/16"]
+      location            = "Central India"
+      resource_group_name = azurerm_resource_group.rg-02.name
+    },
+    {
+      name                = "vnet-ci-hr-01"
+      address_space       = ["10.2.0.0/16"]
+      location            = "Central India"
+      resource_group_name = azurerm_resource_group.rg-03.name
+    }
+  ]
+}
 
 module "vnet" {
-  source = "../../../modules/networking/vnet"
+  source       = "../../../modules/networking/vnet"
+  vnet_configs = local.vnets
+  depends_on   = [azurerm_resource_group.rg-01, azurerm_resource_group.rg-02, azurerm_resource_group.rg-03]
 }
 
 module "subnet" {
-  source                = "../../../modules/networking/subnet"
-  subnet_names_vnet_hub = var.subnet_names_vnet_hub
-  address_prefixes      = var.subnet_address_prefixes
-  vnet_name             = module.vnet.vnet_names[0]
-  resource_group_name   = module.vnet.vnet_names[0].resource_group_name.name # Change this to your desired resource group name
-
-  depends_on = [module.vnet] # Ensure the VNet is created before the subnet
-
+  count                = length(local.vnets)
+  source               = "../../../modules/networking/subnet"
+  subnet_count         = 3
+  subnet_prefix        = "${local.vnets[count.index].name}-subnet"
+  vnet_cidr            = local.vnets[count.index].address_space[0]
+  virtual_network_name = local.vnets[count.index].name
+  resource_group_name  = local.vnets[count.index].resource_group_name
+  depends_on           = [azurerm_resource_group.rg-01, azurerm_resource_group.rg-02, azurerm_resource_group.rg-03, module.vnet]
 }
 
+module "nsg" {
+  count               = length(local.vnets)
+  source              = "../../../modules/networking/nsg"
+  nsg_count           = 3
+  nsg_prefix          = "${local.vnets[count.index].name}-nsg"
+  location            = local.vnets[count.index].location
+  resource_group_name = local.vnets[count.index].resource_group_name
 
+  # Subnet IDs constructed using known naming convention
+  subnet_ids = [
+    for i in range(3) : "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.vnets[count.index].resource_group_name}/providers/Microsoft.Network/virtualNetworks/${local.vnets[count.index].name}/subnets/${local.vnets[count.index].name}-subnet-${i + 1}"
+  ]
 
-
-
-/*
-
-
-resource "azurerm_resource_group" "rg-ci-hub-core-01" {
-  name     = "rg-ci-hub-core-01"
-  location = "Central India" # Change this to your desired location
-  tags = {
-    environment = "prod"
-    owner       = "Sourabh Chhabra " # Change this to your name or the name of the owner
-    project     = "Lab21"
-  }
-
+  depends_on = [module.subnet]
 }
 
-
-*/
+data "azurerm_client_config" "current" {}
