@@ -59,21 +59,3 @@ module "subnet" {
   resource_group_name  = local.vnets[count.index].resource_group_name
   depends_on           = [azurerm_resource_group.rg-01, azurerm_resource_group.rg-02, azurerm_resource_group.rg-03, module.vnet]
 }
-
-module "nsg" {
-  count               = length(local.vnets)
-  source              = "../../../modules/networking/nsg"
-  nsg_count           = 3
-  nsg_prefix          = "${local.vnets[count.index].name}-nsg"
-  location            = local.vnets[count.index].location
-  resource_group_name = local.vnets[count.index].resource_group_name
-
-  # Subnet IDs constructed using known naming convention
-  subnet_ids = [
-    for i in range(3) : "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${local.vnets[count.index].resource_group_name}/providers/Microsoft.Network/virtualNetworks/${local.vnets[count.index].name}/subnets/${local.vnets[count.index].name}-subnet-${i + 1}"
-  ]
-
-  depends_on = [module.subnet]
-}
-
-data "azurerm_client_config" "current" {}
