@@ -36,10 +36,26 @@ module "Route-Table" {
 
 }
 
-/*
+
 module "Virtual-Machine" {
   source     = "./Prod/Virtual Machine"
-  depends_on = [module.Route-Table]
+  depends_on = [module.Route-Table, module.availibilityset, module.Nsg, module.Subnet, module.vnet]
 
 }
-*/
+
+
+
+module "Load-Balancer" {
+  source     = "./Prod/loadbalancer"
+  depends_on = [module.vnet, module.Subnet, module.Nsg, module.Route-Table]
+
+}
+
+module "availibilityset" {
+  source     = "./Prod/availabilityset"
+  depends_on = [module.vnet, module.Subnet, module.Nsg, module.Route-Table, module.Load-Balancer]
+
+}
+
+
+
