@@ -1,0 +1,59 @@
+terraform/
+├── environments/
+│   ├── dev/
+│   │   ├── _shared/
+│   │   │   ├── provider.tf
+│   │   │   ├── locals.tf         # common naming, tags, etc.
+│   │   │   └── variables.tf      # shared variables (optional)
+│   │   ├── centralindia/
+│   │   │   ├── main.tf
+│   │   │   ├── variables.tf
+│   │   │   ├── terraform.tfvars
+│   │   │   └── backend.tf
+│   │   └── westindia/
+│   │       ├── main.tf
+│   │       ├── variables.tf
+│   │       ├── terraform.tfvars
+│   │       └── backend.tf
+│   ├── uat/
+│   │   ├── _shared/
+│   │   ├── centralindia/
+│   │   └── westindia/
+│   ├── preprod/
+│   │   ├── _shared/
+│   │   ├── centralindia/
+│   │   └── westindia/
+│   └── prod/
+│       ├── _shared/
+│       ├── centralindia/
+│       └── westindia/
+│
+├── modules/
+│   ├── shared/
+│   │   └── resource_group/
+│   ├── network/
+│   │   ├── hub/
+│   │   └── spoke/
+│   ├── compute/
+│   │   └── virtual_machine/
+│   ├── app_services/
+│   ├── database/
+│   │   └── sql_database/
+│   ├── security/
+│   │   ├── nsg/
+│   │   └── firewall/
+│   ├── routing/
+│   │   └── route_table/
+│   ├── load_balancers/
+│   │   ├── application_gateway/
+│   │   └── frontdoor/
+│   └── identity/
+│       └── managed_identity/
+│
+├── global/
+│   ├── naming_conventions.tf
+│   ├── common_tags.tf
+│   ├── region_mappings.tf
+│   └── providers.tf     # Optional if not in _shared
+│
+└── README.md
