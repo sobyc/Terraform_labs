@@ -38,7 +38,6 @@ module "Route-Table" {
 
 
 
-/*
 module "Virtual-Machine" {
   source     = "./Prod/Virtual Machine"
   depends_on = [module.Route-Table, module.availibilityset, module.Nsg, module.Subnet, module.vnet]
@@ -61,5 +60,3 @@ module "availibilityset" {
 
 
 
-
-*/
