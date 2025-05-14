@@ -42,14 +42,14 @@ resource "azurerm_public_ip" "PublicIPForLB" {
   location            = data.azurerm_resource_group.rg2.location
   resource_group_name = data.azurerm_resource_group.rg2.name
   allocation_method   = "Static"
-  sku = "Standard"
+  sku                 = "Basic"
 
 }
 resource "azurerm_lb" "etx_lb_spoke1" {
   name                = "lb-ci-ext-spoke1-01"
   location            = data.azurerm_resource_group.rg2.location
   resource_group_name = data.azurerm_resource_group.rg2.name
-
+  sku                 = "Basic"
 
   frontend_ip_configuration {
     name                 = "PublicIPAddress"
@@ -77,13 +77,13 @@ resource "azurerm_lb" "int_lb_spoke2" {
   name                = "lb-ci-int-spoke2-01"
   location            = data.azurerm_resource_group.rg3.location
   resource_group_name = data.azurerm_resource_group.rg3.name
-
+  sku                 = "Basic"
 
 
   frontend_ip_configuration {
-    name                 = "PrivateIPAddress"
+    name      = "PrivateIPAddress"
     subnet_id = data.azurerm_subnet.spoke2-db.id
-    
+
   }
 }
 resource "azurerm_lb_backend_address_pool" "bp-02" {

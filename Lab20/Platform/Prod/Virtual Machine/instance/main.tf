@@ -108,11 +108,11 @@ resource "azurerm_network_interface" "vm-hub-mgmt-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.hub-mgmt.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.vm0-pip.id
+    public_ip_address_id          = azurerm_public_ip.vm0-pip.id
 
   }
-  
-  depends_on = [ azurerm_public_ip.vm0-pip ]
+
+  depends_on = [azurerm_public_ip.vm0-pip]
 
 }
 
@@ -141,8 +141,8 @@ resource "azurerm_windows_virtual_machine" "vm-ci-hub-mgmt-01" {
     sku       = "2016-Datacenter"
     version   = "latest"
   }
-  
-  depends_on = [ azurerm_network_interface.vm-hub-mgmt-01 ]
+
+  depends_on = [azurerm_network_interface.vm-hub-mgmt-01]
 }
 /*
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "shutdown-vmciphmt01" {
@@ -185,11 +185,11 @@ resource "azurerm_network_interface" "vm-spoke1-web-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.spoke1-web.id
     private_ip_address_allocation = "Dynamic"
-   // public_ip_address_id = azurerm_public_ip.vm1-pip.id                   //Removing this to have access to this VM only from the HUb Jump Server
+    // public_ip_address_id = azurerm_public_ip.vm1-pip.id                   //Removing this to have access to this VM only from the HUb Jump Server
 
   }
 
- // depends_on = [ azurerm_public_ip.vm1-pip ]
+  // depends_on = [ azurerm_public_ip.vm1-pip ]
 
 }
 output "nic-01-id" {
@@ -206,7 +206,7 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
   admin_username        = "adminuser"
   admin_password        = "Windows@111"
   network_interface_ids = [azurerm_network_interface.vm-spoke1-web-01.id, ]
-  availability_set_id = data.azurerm_availability_set.aset-01.id
+  availability_set_id   = data.azurerm_availability_set.aset-01.id
 
 
   os_disk {
@@ -220,9 +220,12 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
     sku       = "2016-Datacenter"
     version   = "latest"
   }
-  
-  depends_on = [ azurerm_network_interface.vm-spoke1-web-01 ]
-}/*
+
+  provision_vm_agent = true
+
+
+  depends_on = [azurerm_network_interface.vm-spoke1-web-01]
+} /*
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "shutdown-vmcipweb01" {
   virtual_machine_id = azurerm_windows_virtual_machine.vm-ci-spoke1-web-01.id
   location           = data.azurerm_resource_group.rg2.location
@@ -239,6 +242,19 @@ resource "azurerm_dev_test_global_vm_shutdown_schedule" "shutdown-vmcipweb01" {
 
 */
 
+resource "azurerm_virtual_machine_extension" "iis-vm-ci-spoke1-web-01" {
+  name                 = "IISInstall"
+  virtual_machine_id   = azurerm_windows_virtual_machine.vm-ci-spoke1-web-01.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+
+  settings = <<SETTINGS
+    {
+      "commandToExecute": "powershell -ExecutionPolicy Unrestricted -Command \"Install-WindowsFeature -Name Web-Server -IncludeManagementTools; Set-Content -Path 'C:\\inetpub\\wwwroot\\index.html' -Value 'Hello welcome to vm-ci-spoke1-web-01'\""
+    }
+SETTINGS
+}
 
 
 resource "azurerm_network_interface" "vm-spoke1-web-02" {
@@ -269,7 +285,7 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-02" {
   admin_username        = "adminuser"
   admin_password        = "Windows@111"
   network_interface_ids = [azurerm_network_interface.vm-spoke1-web-02.id, ]
-  availability_set_id = data.azurerm_availability_set.aset-01.id
+  availability_set_id   = data.azurerm_availability_set.aset-01.id
 
 
   os_disk {
@@ -283,10 +299,34 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-02" {
     sku       = "2016-Datacenter"
     version   = "latest"
   }
-  
-  depends_on = [ azurerm_network_interface.vm-spoke1-web-02 ]
 
-}/*
+  provision_vm_agent = true
+
+
+
+  depends_on = [azurerm_network_interface.vm-spoke1-web-02]
+
+}
+
+
+resource "azurerm_virtual_machine_extension" "iis-vm-ci-spoke1-web-02" {
+  name                 = "IISInstall"
+  virtual_machine_id   = azurerm_windows_virtual_machine.vm-ci-spoke1-web-02.id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.10"
+
+  settings = <<SETTINGS
+    {
+      "commandToExecute": "powershell -ExecutionPolicy Unrestricted -Command \"Install-WindowsFeature -Name Web-Server -IncludeManagementTools; Set-Content -Path 'C:\\inetpub\\wwwroot\\index.html' -Value 'Hello welcome to vm-ci-spoke1-web-02'\""
+    }
+SETTINGS
+}
+
+
+
+
+/*
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "shutdown-vmcipweb02" {
   virtual_machine_id = azurerm_windows_virtual_machine.vm-ci-spoke1-web-02.id
   location           = data.azurerm_resource_group.rg2.location
@@ -331,7 +371,7 @@ resource "azurerm_network_interface" "vm-spoke2-db-01" {
     private_ip_address_allocation = "Dynamic"
     //public_ip_address_id = azurerm_public_ip.vm2-pip.id                                // Removing this to have access to this VM only from the HUb Jump Server
   }
-  
+
   //depends_on = [ azurerm_public_ip.vm2-pip ]
 
 }
@@ -341,15 +381,15 @@ output "nic-02-id" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm-ci-spoke2-db-01" {
-  name                  = "vmcipdb01"
-  resource_group_name   = data.azurerm_resource_group.rg3.name
-  location              = data.azurerm_resource_group.rg3.location
-  size                  = "Standard_D2s_v3"
-  admin_username        = "adminuser"
-  admin_password        = "Windows@111"
-  network_interface_ids = [azurerm_network_interface.vm-spoke2-db-01.id, ]
+  name                            = "vmcipdb01"
+  resource_group_name             = data.azurerm_resource_group.rg3.name
+  location                        = data.azurerm_resource_group.rg3.location
+  size                            = "Standard_D2s_v3"
+  admin_username                  = "adminuser"
+  admin_password                  = "Windows@111"
+  network_interface_ids           = [azurerm_network_interface.vm-spoke2-db-01.id, ]
   disable_password_authentication = false
-  availability_set_id = data.azurerm_availability_set.aset-02.id
+  availability_set_id             = data.azurerm_availability_set.aset-02.id
 
 
   os_disk {
@@ -364,9 +404,26 @@ resource "azurerm_linux_virtual_machine" "vm-ci-spoke2-db-01" {
     version   = "latest"
   }
 
-  depends_on = [ azurerm_network_interface.vm-spoke2-db-01 ]
+  depends_on = [azurerm_network_interface.vm-spoke2-db-01]
 
-}/*
+}
+
+resource "azurerm_virtual_machine_extension" "apache-vm-ci-spoke2-db-01" {
+  name                 = "ApacheInstall"
+  virtual_machine_id   = azurerm_linux_virtual_machine.vm-ci-spoke2-db-01.id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.1"
+
+  settings = <<SETTINGS
+    {
+      "commandToExecute": "bash -c 'sudo apt-get update && sudo apt-get install -y apache2 && echo Hello Welcome to the vm-ci-spoke2-db-01 > /var/www/html/index.html'"
+    }
+SETTINGS
+}
+
+
+/*
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "shutdown-vmcipdb01" {
   virtual_machine_id = azurerm_linux_virtual_machine.vm-ci-spoke2-db-01.id
   location           = data.azurerm_resource_group.rg3.location
@@ -397,7 +454,7 @@ resource "azurerm_network_interface" "vm-spoke2-db-02" {
     private_ip_address_allocation = "Dynamic"
     //public_ip_address_id = azurerm_public_ip.vm2-pip.id                                // Removing this to have access to this VM only from the HUb Jump Server
   }
-  
+
   //depends_on = [ azurerm_public_ip.vm2-pip ]
 
 }
@@ -407,15 +464,15 @@ output "nic-03-id" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm-ci-spoke2-db-02" {
-  name                  = "vmcipdb02"
-  resource_group_name   = data.azurerm_resource_group.rg3.name
-  location              = data.azurerm_resource_group.rg3.location
-  size                  = "Standard_D2s_v3"
-  admin_username        = "adminuser"
-  admin_password        = "Windows@111"
-  network_interface_ids = [azurerm_network_interface.vm-spoke2-db-02.id, ]
+  name                            = "vmcipdb02"
+  resource_group_name             = data.azurerm_resource_group.rg3.name
+  location                        = data.azurerm_resource_group.rg3.location
+  size                            = "Standard_D2s_v3"
+  admin_username                  = "adminuser"
+  admin_password                  = "Windows@111"
+  network_interface_ids           = [azurerm_network_interface.vm-spoke2-db-02.id, ]
   disable_password_authentication = false
-  availability_set_id = data.azurerm_availability_set.aset-02.id
+  availability_set_id             = data.azurerm_availability_set.aset-02.id
 
   os_disk {
     caching              = "ReadWrite"
@@ -429,10 +486,27 @@ resource "azurerm_linux_virtual_machine" "vm-ci-spoke2-db-02" {
     version   = "latest"
   }
 
-  depends_on = [ azurerm_network_interface.vm-spoke2-db-02 ]
+  depends_on = [azurerm_network_interface.vm-spoke2-db-02]
 
 
 }
+
+resource "azurerm_virtual_machine_extension" "apache-vm-ci-spoke2-db-02" {
+  name                 = "ApacheInstall"
+  virtual_machine_id   = azurerm_linux_virtual_machine.vm-ci-spoke2-db-02.id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.1"
+
+  settings = <<SETTINGS
+    {
+      "commandToExecute": "bash -c 'sudo apt-get update && sudo apt-get install -y apache2 && echo Hello Welcome to the vm-ci-spoke2-db-02 > /var/www/html/index.html'"
+    }
+SETTINGS
+}
+
+
+
 
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "shutdown-vmcipdb02" {
   virtual_machine_id = azurerm_linux_virtual_machine.vm-ci-spoke2-db-02.id
