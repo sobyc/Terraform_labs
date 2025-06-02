@@ -58,5 +58,11 @@ module "availibilityset" {
 
 }
 
+module "Firewall" {
+  source     = "./Prod/Firewall"
+  depends_on = [module.vnet, module.Subnet, module.Nsg, module.Route-Table, module.Load-Balancer]
+
+}
+
 
 

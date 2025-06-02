@@ -1,0 +1,4 @@
+module "Platform" {
+  source = "./Platform"
+}
+
