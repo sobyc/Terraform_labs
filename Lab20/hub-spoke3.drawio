@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e" pages="2">
     <diagram name="Page-1" id="FINQvvkT7ASy_IZGkksm">
-        <mxGraphModel dx="2080" dy="1810" grid="0" gridSize="10" guides="1" tooltips="1" connect="0" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="light-dark(#f1e0e0, #121212)" math="0" shadow="0">
+        <mxGraphModel dx="1877" dy="2004" grid="0" gridSize="10" guides="1" tooltips="1" connect="0" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="light-dark(#f1e0e0, #121212)" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -516,7 +516,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="6" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="3048" y="-308" width="440" height="280" as="geometry"/>
+                    <mxGeometry x="3082" y="-515" width="406" height="487" as="geometry"/>
                 </mxCell>
                 <mxCell id="7" value="" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.virtual_network;pointerEvents=1;" parent="1" vertex="1">
                     <mxGeometry x="3438" y="-55.5" width="50" height="27.500000000000004" as="geometry"/>
@@ -584,11 +584,11 @@
                 <mxCell id="26" value="" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="3153" y="-298" width="230" height="110" as="geometry"/>
                 </mxCell>
-                <mxCell id="27" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/networking/Firewalls.svg;" parent="1" vertex="1">
-                    <mxGeometry x="3232.5" y="-278" width="71" height="60" as="geometry"/>
-                </mxCell>
                 <mxCell id="28" value="Firewall" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
                     <mxGeometry x="3238" y="-227" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/networking/Firewalls.svg;" parent="1" vertex="1">
+                    <mxGeometry x="3232.5" y="-278" width="71" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="29" value="Azurefirewallsubnet" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
                     <mxGeometry x="3376.49" y="-268" width="130" height="30" as="geometry"/>
@@ -661,6 +661,39 @@
                 </mxCell>
                 <mxCell id="50" value="&lt;a style=&quot;font-family: &amp;quot;Segoe UI&amp;quot;, &amp;quot;Segoe UI Web (West European)&amp;quot;, &amp;quot;Segoe UI&amp;quot;, -apple-system, BlinkMacSystemFont, Roboto, &amp;quot;Helvetica Neue&amp;quot;, sans-serif; -webkit-font-smoothing: antialiased; font-size: 13px; color: rgb(0, 120, 212); outline: none; text-decoration-line: none; text-align: left; background-color: rgb(255, 255, 255); overflow: hidden; text-overflow: ellipsis;&quot; tabindex=&quot;-1&quot; class=&quot;ms-Link ext-hubs-browse-resource-link root-273&quot; href=&quot;https://portal.azure.com/#resource/subscriptions/7a0bf087-e2b9-4fb2-bb79-4ef863e0c025/resourceGroups/rg-ci-prd-spoke-02/providers/Microsoft.Compute/virtualMachines/vmcipdb02&quot;&gt;vmcipdb02&lt;/a&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
                     <mxGeometry x="3684" y="204.85000000000002" width="82" height="28" as="geometry"/>
+                </mxCell>
+                <mxCell id="52" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="3153" y="-484" width="230" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" value="GatewaySubnet" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="3385" y="-411" width="103" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="55" value="" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/mscae/Express_Route.svg;" vertex="1" parent="1">
+                    <mxGeometry x="3213" y="-474" width="105" height="63" as="geometry"/>
+                </mxCell>
+                <mxCell id="56" value="Express Route Circuit" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="3207.5" y="-415" width="134" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="61" style="edgeStyle=none;html=1;" edge="1" parent="1" source="57" target="55">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="57" value="" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.express_route;pointerEvents=1;" vertex="1" parent="1">
+                    <mxGeometry x="3243" y="-680" width="50" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="58" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.concepts.on_premises;" vertex="1" parent="1">
+                    <mxGeometry x="3218.5" y="-931" width="94" height="93" as="geometry"/>
+                </mxCell>
+                <mxCell id="60" style="edgeStyle=none;html=1;entryX=0.509;entryY=0.186;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="58" target="57">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="62" value="On _Prem" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="3333" y="-881" width="73" height="26" as="geometry"/>
+                </mxCell>
+                <mxCell id="63" value="" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/networking/Network_Security_Groups.svg;" vertex="1" parent="1">
+                    <mxGeometry x="3385.51" y="-471" width="20.49" height="24.88" as="geometry"/>
+                </mxCell>
+                <mxCell id="64" value="NSG" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="3373.4799999999996" y="-449" width="50" height="30" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
