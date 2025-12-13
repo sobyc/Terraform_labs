@@ -1,18 +1,18 @@
 resource "azurerm_resource_group" "rg-01" {
-  name     = "rg-ci-hub-01"
-  location = "Central India"
+  name     = format("rg-%s-%s-%s-01", var.region, local.env_abbr, "hub")
+  location = var.location
 
 }
 
 resource "azurerm_resource_group" "rg-02" {
-  name     = "rg-ci-finance-01"
-  location = "Central India"
+  name     = format("rg-%s-%s-%s-01", var.region, local.env_abbr, "finance")
+  location = var.location
 
 }
 
 resource "azurerm_resource_group" "rg-03" {
-  name     = "rg-ci-hr-01"
-  location = "Central India"
+  name     = format("rg-%s-%s-%s-01", var.region, local.env_abbr, "hr")
+  location = var.location
 
 }
 
@@ -21,41 +21,63 @@ resource "azurerm_resource_group" "rg-03" {
 
 
 locals {
+  environment          = var.environment
+  default_env_abbr_map = { prod = "pr", dev = "dev", staging = "stg", ci = "ci" }
+  env_abbr             = lookup(var.env_abbr_map, var.environment, lookup(local.default_env_abbr_map, var.environment, var.environment))
   vnets = [
     {
-      name                = "vnet-ci-hub-01"
+      role                = "hub"
       address_space       = ["10.0.0.0/16"]
-      location            = "Central India"
+      location            = var.location
       resource_group_name = azurerm_resource_group.rg-01.name
     },
     {
-      name                = "vnet-ci-finance-01"
+      role                = "finance"
       address_space       = ["10.1.0.0/16"]
-      location            = "Central India"
+      location            = var.location
       resource_group_name = azurerm_resource_group.rg-02.name
     },
     {
-      name                = "vnet-ci-hr-01"
+      role                = "hr"
       address_space       = ["10.2.0.0/16"]
-      location            = "Central India"
+      location            = var.location
       resource_group_name = azurerm_resource_group.rg-03.name
     }
+  ]
+
+  default_subnet_names = ["subnet-01", "subnet-02", "subnet-03"]
+  subnet_newbits       = 8
+  custom_subnet_names = {
+    "hub" = ["GatewaySubnet", "FirewallSubnet", "ManagementSubnet"]
+  }
+
+  vnets_with_name = [
+    for v in local.vnets : merge(v, {
+      name = format("vnet-%s-%s-%s", local.env_abbr, var.region, v.role)
+    })
+  ]
+
+  subnets_per_vnet = [
+    for vnet in local.vnets_with_name : [
+      for idx, sname in lookup(local.custom_subnet_names, vnet.role, local.default_subnet_names) : {
+        name           = sname
+        address_prefix = cidrsubnet(vnet.address_space[0], local.subnet_newbits, idx)
+      }
+    ]
   ]
 }
 
 module "vnet" {
   source       = "../../../modules/networking/vnet"
-  vnet_configs = local.vnets
+  vnet_configs = local.vnets_with_name
   depends_on   = [azurerm_resource_group.rg-01, azurerm_resource_group.rg-02, azurerm_resource_group.rg-03]
 }
 
 module "subnet" {
-  count                = length(local.vnets)
+  count                = length(local.vnets_with_name)
   source               = "../../../modules/networking/subnet"
-  subnet_count         = 3
-  subnet_prefix        = "${local.vnets[count.index].name}-subnet"
-  vnet_cidr            = local.vnets[count.index].address_space[0]
-  virtual_network_name = local.vnets[count.index].name
-  resource_group_name  = local.vnets[count.index].resource_group_name
+  subnets              = local.subnets_per_vnet[count.index]
+  virtual_network_name = local.vnets_with_name[count.index].name
+  resource_group_name  = local.vnets_with_name[count.index].resource_group_name
   depends_on           = [azurerm_resource_group.rg-01, azurerm_resource_group.rg-02, azurerm_resource_group.rg-03, module.vnet]
 }
