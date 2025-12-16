@@ -74,3 +74,62 @@ module "subnet" {
   resource_group_name  = local.vnets_with_name[count.index].resource_group_name
   depends_on           = [module.vnet]
 }
+
+locals {
+  nsgs_per_vnet = [
+    for vindex, vnet in local.vnets_with_name : (
+      vnet.role == "hub" ? [
+        {
+          name                 = "ManagementNSG"
+          nsg_rules            = []
+          associate_subnet_ids = compact([try(module.subnet[vindex].subnet_ids["${vnet.name}-ManagementSubnet"], null)])
+        }
+        ] : [
+        {
+          name                 = format("%s-nsg", vnet.name)
+          nsg_rules            = []
+          associate_subnet_ids = [for k, id in module.subnet[vindex].subnet_ids : id]
+        }
+      ]
+    )
+  ]
+}
+
+module "nsg" {
+  count               = length(local.vnets_with_name)
+  source              = "../../../modules/networking/nsg"
+  nsgs                = local.nsgs_per_vnet[count.index]
+  resource_group_name = local.vnets_with_name[count.index].resource_group_name
+  location            = var.location
+  tags                = {}
+  depends_on          = [module.subnet]
+}
+
+locals {
+  nsg_assoc_list = flatten([
+    for vindex, vnet in local.vnets_with_name : (
+      vnet.role == "hub" ? [
+        {
+          key       = "${vnet.name}-ManagementNSG-${vnet.name}-ManagementSubnet"
+          nsg_id    = module.nsg[vindex].nsg_ids["ManagementNSG"]
+          subnet_id = module.subnet[vindex].subnet_ids["${vnet.name}-ManagementSubnet"]
+        }
+        ] : [
+        for k, id in module.subnet[vindex].subnet_ids : {
+          key       = "${vnet.name}-${k}"
+          nsg_id    = module.nsg[vindex].nsg_ids[format("%s-nsg", vnet.name)]
+          subnet_id = id
+        }
+      ]
+    )
+  ])
+
+  nsg_associations = { for item in local.nsg_assoc_list : item.key => { nsg_id = item.nsg_id, subnet_id = item.subnet_id } }
+}
+
+resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
+  for_each = local.nsg_associations
+
+  subnet_id                 = each.value.subnet_id
+  network_security_group_id = each.value.nsg_id
+}
