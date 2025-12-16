@@ -1,0 +1,12 @@
+role,subnet_role,subnet_name,subnet_cidr,env
+hub,Gateway,GatewaySubnet,,prod
+hub,Firewall,FirewallSubnet,,prod
+hub,Management,ManagementSubnet,,prod
+finance,app,app-subnet,10.1.10.0/24,prod
+finance,web,web-subnet,10.1.3.0/24,prod
+finance,db,db-subnet,10.1.1.0/24,prod
+finance,test,test-subnet,10.1.2.0/24,prod
+hr,app,hr-app-subnet,10.2.10.0/24,prod
+hr,web,hr-web-subnet,10.2.3.0/24,prod
+hr,db,hr-db-subnet,10.2.1.0/24,prod
+hr,test,hr-test-subnet,10.2.2.0/24,prod

@@ -130,7 +130,11 @@ locals {
     )
   ])
 
-  nsg_associations = { for item in local.nsg_assoc_list : item.key => { nsg_id = item.nsg_id, subnet_id = item.subnet_id } }
+  # Remove duplicate identical association entries and build associations map
+  nsg_key_list     = [for item in local.nsg_assoc_list : item.key]
+  nsg_keys_unique  = distinct(local.nsg_key_list)
+
+  nsg_associations = { for k in local.nsg_keys_unique : k => { nsg_id = local.nsg_assoc_list[index(local.nsg_key_list, k)].nsg_id, subnet_id = local.nsg_assoc_list[index(local.nsg_key_list, k)].subnet_id } }
 }
 
 resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {

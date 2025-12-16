@@ -73,6 +73,11 @@ locals {
       }
     ]
   ]
+
+  # Helper maps keyed by vnet name for stable for_each usage (prevents index shifting)
+  vnets_map = { for v in local.vnets_with_name : v.name => v }
+  vnet_index_map = { for idx, v in local.vnets_with_name : v.name => idx }
+  subnets_per_vnet_map = { for idx, v in local.vnets_with_name : v.name => local.subnets_per_vnet[idx] }
 }
 
 module "vnet" {
@@ -82,28 +87,28 @@ module "vnet" {
 }
 
 module "subnet" {
-  count                = length(local.vnets_with_name)
+  for_each             = local.vnets_map
   source               = "../../../modules/networking/subnet"
-  subnets              = local.subnets_per_vnet[count.index]
-  virtual_network_name = local.vnets_with_name[count.index].name
-  resource_group_name  = local.vnets_with_name[count.index].resource_group_name
+  subnets              = local.subnets_per_vnet_map[each.key]
+  virtual_network_name = each.key
+  resource_group_name  = each.value.resource_group_name
   depends_on           = [azurerm_resource_group.rg-01, azurerm_resource_group.rg-02, azurerm_resource_group.rg-03, module.vnet]
-}
+} 
 
 locals {
   nsgs_per_vnet = [
-    for vindex, vnet in local.vnets_with_name : (
+    for vnet in local.vnets_with_name : (
       vnet.role == "hub" ? [
         {
           name                 = "ManagementNSG"
           nsg_rules            = []
-          associate_subnet_ids = compact([try(module.subnet[vindex].subnet_ids["${vnet.name}-ManagementSubnet"], null)])
+          associate_subnet_ids = compact([try(module.subnet[vnet.name].subnet_ids["${vnet.name}-ManagementSubnet"], null)])
         }
         ] : [
         {
           name                 = format("%s-nsg", vnet.name)
           nsg_rules            = []
-          associate_subnet_ids = [for k, id in module.subnet[vindex].subnet_ids : id]
+          associate_subnet_ids = [for k, id in module.subnet[vnet.name].subnet_ids : id]
         }
       ]
     )
@@ -111,10 +116,10 @@ locals {
 }
 
 module "nsg" {
-  count               = length(local.vnets_with_name)
+  for_each            = local.vnets_map
   source              = "../../../modules/networking/nsg"
-  nsgs                = local.nsgs_per_vnet[count.index]
-  resource_group_name = local.vnets_with_name[count.index].resource_group_name
+  nsgs                = local.nsgs_per_vnet[lookup(local.vnet_index_map, each.key, 0)]
+  resource_group_name = each.value.resource_group_name
   location            = var.location
   tags                = {}
   depends_on          = [module.subnet]
@@ -122,24 +127,28 @@ module "nsg" {
 
 locals {
   nsg_assoc_list = flatten([
-    for vindex, vnet in local.vnets_with_name : (
+    for vnet in local.vnets_with_name : (
       vnet.role == "hub" ? [
         {
           key       = "${vnet.name}-ManagementNSG-${vnet.name}-ManagementSubnet"
-          nsg_id    = module.nsg[vindex].nsg_ids["ManagementNSG"]
-          subnet_id = module.subnet[vindex].subnet_ids["${vnet.name}-ManagementSubnet"]
+          nsg_id    = module.nsg[vnet.name].nsg_ids["ManagementNSG"]
+          subnet_id = module.subnet[vnet.name].subnet_ids["${vnet.name}-ManagementSubnet"]
         }
         ] : [
-        for k, id in module.subnet[vindex].subnet_ids : {
+        for k, id in module.subnet[vnet.name].subnet_ids : {
           key       = "${vnet.name}-${k}"
-          nsg_id    = module.nsg[vindex].nsg_ids[format("%s-nsg", vnet.name)]
+          nsg_id    = module.nsg[vnet.name].nsg_ids[format("%s-nsg", vnet.name)]
           subnet_id = id
         }
       ]
     )
   ])
 
-  nsg_associations = { for item in local.nsg_assoc_list : item.key => { nsg_id = item.nsg_id, subnet_id = item.subnet_id } }
+  # Remove duplicate identical association entries and build associations map
+  nsg_key_list     = [for item in local.nsg_assoc_list : item.key]
+  nsg_keys_unique  = distinct(local.nsg_key_list)
+
+  nsg_associations = { for k in local.nsg_keys_unique : k => { nsg_id = local.nsg_assoc_list[index(local.nsg_key_list, k)].nsg_id, subnet_id = local.nsg_assoc_list[index(local.nsg_key_list, k)].subnet_id } }
 }
 
 resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
@@ -147,4 +156,6 @@ resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
 
   subnet_id                 = each.value.subnet_id
   network_security_group_id = each.value.nsg_id
+
+  depends_on = [module.subnet]
 }
