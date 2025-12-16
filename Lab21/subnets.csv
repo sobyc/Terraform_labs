@@ -1,0 +1,10 @@
+role,subnet_name
+hub,GatewaySubnet
+hub,FirewallSubnet
+hub,ManagementSubnet
+finance,subnet-01
+finance,subnet-02
+finance,subnet-03
+hr,subnet-01
+hr,subnet-02
+hr,subnet-03

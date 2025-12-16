@@ -25,3 +25,15 @@ variable "env_abbr_map" {
   type        = map(string)
   default     = {}
 }
+
+variable "vnets_with_name" {
+  description = "Optional list of vnets (from CSV) to use instead of in-module defaults"
+  type        = list(any)
+  default     = []
+}
+
+variable "subnets_per_vnet" {
+  description = "Optional list of subnet lists (from CSV) matching order of `vnets_with_name`"
+  type        = list(any)
+  default     = []
+}
