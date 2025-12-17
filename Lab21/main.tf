@@ -16,11 +16,7 @@ locals {
   subnet_newbits       = 8
   default_subnet_names = ["app", "web", "db", "test"]
 
-  # Global CSVs
-  vnets_csv_global   = csvdecode(file("${path.module}/vnets.csv"))
-  subnets_csv_global = csvdecode(file("${path.module}/subnets.csv"))
-
-  # Optional per-environment CSVs (take precedence when present)
+  # Per-environment CSVs (optional; each environment file takes precedence)
   vnets_csv_prod = fileexists("${path.module}/vnets.prod.csv") ? csvdecode(file("${path.module}/vnets.prod.csv")) : []
   vnets_csv_dev  = fileexists("${path.module}/vnets.dev.csv") ? csvdecode(file("${path.module}/vnets.dev.csv")) : []
 
@@ -28,11 +24,11 @@ locals {
   subnets_csv_dev  = fileexists("${path.module}/subnets.dev.csv") ? csvdecode(file("${path.module}/subnets.dev.csv")) : []
 
   # Build merged per-environment CSV lists (per-env file rows first, then global rows targeting the env or all envs)
-  vnets_csv_for_prod = concat(local.vnets_csv_prod, [for r in local.vnets_csv_global : r if lookup(r, "env", "") == "" || lower(lookup(r, "env", "")) == "prod"])
-  vnets_csv_for_dev  = concat(local.vnets_csv_dev,  [for r in local.vnets_csv_global : r if lookup(r, "env", "") == "" || lower(lookup(r, "env", "")) == "dev"])
+  vnets_csv_for_prod = local.vnets_csv_prod
+  vnets_csv_for_dev  = local.vnets_csv_dev
 
-  subnets_csv_for_prod = concat(local.subnets_csv_prod, [for r in local.subnets_csv_global : r if lookup(r, "env", "") == "" || lower(lookup(r, "env", "")) == "prod"])
-  subnets_csv_for_dev  = concat(local.subnets_csv_dev,  [for r in local.subnets_csv_global : r if lookup(r, "env", "") == "" || lower(lookup(r, "env", "")) == "dev"])
+  subnets_csv_for_prod = local.subnets_csv_prod
+  subnets_csv_for_dev  = local.subnets_csv_dev
 
   # Normalize CSV rows into structured vnet objects per environment
   vnets_from_csv_for_prod = [for r in local.vnets_csv_for_prod : {
@@ -54,16 +50,16 @@ locals {
   }]
 
   vnets_with_name_for_prod = [for v in local.vnets_from_csv_for_prod : merge(v, { name = coalesce(v.name, format("vnet-%s-%s-%s", var.region, v.role, "auto")), env = v.env })]
-  vnets_with_name_for_dev  = [for v in local.vnets_from_csv_for_dev  : merge(v, { name = coalesce(v.name, format("vnet-%s-%s-%s", var.region, v.role, "auto")), env = v.env })]
+  vnets_with_name_for_dev  = [for v in local.vnets_from_csv_for_dev : merge(v, { name = coalesce(v.name, format("vnet-%s-%s-%s", var.region, v.role, "auto")), env = v.env })]
 
   # Build per-environment vnet lists (deduped by name to avoid duplicate creations)
   vnets_for_prod = [
     for name in distinct([for v in local.vnets_with_name_for_prod : v.name]) :
-      element([for v in local.vnets_with_name_for_prod : v if v.name == name], 0)
+    element([for v in local.vnets_with_name_for_prod : v if v.name == name], 0)
   ]
   vnets_for_dev = [
     for name in distinct([for v in local.vnets_with_name_for_dev : v.name]) :
-      element([for v in local.vnets_with_name_for_dev : v if v.name == name], 0)
+    element([for v in local.vnets_with_name_for_dev : v if v.name == name], 0)
   ]
 
   # Build per-environment subnet lists aligned to vnets_for_prod / vnets_for_dev
@@ -75,7 +71,7 @@ locals {
           # Prefer per-env row matching v.env, fallback to global row (env == "") then derive
           address_prefix = lookup(element(concat([for rr in local.subnets_csv_for_prod : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == lower(v.env)], [for rr in local.subnets_csv_for_prod : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == ""]), 0), "subnet_cidr", "") != "" ? lookup(element(concat([for rr in local.subnets_csv_for_prod : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == lower(v.env)], [for rr in local.subnets_csv_for_prod : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == ""]), 0), "subnet_cidr", "") : cidrsubnet(v.address_space[0], local.subnet_newbits, idx)
         }
-      ] : [
+        ] : [
         for idx, sname in local.default_subnet_names : {
           name           = sname
           address_prefix = cidrsubnet(v.address_space[0], local.subnet_newbits, idx)
@@ -92,7 +88,7 @@ locals {
           # Prefer per-env row matching v.env, fallback to global row (env == "") then derive
           address_prefix = lookup(element(concat([for rr in local.subnets_csv_for_dev : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == lower(v.env)], [for rr in local.subnets_csv_for_dev : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == ""]), 0), "subnet_cidr", "") != "" ? lookup(element(concat([for rr in local.subnets_csv_for_dev : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == lower(v.env)], [for rr in local.subnets_csv_for_dev : rr if rr.role == v.role && lower(lookup(rr, "env", "")) == ""]), 0), "subnet_cidr", "") : cidrsubnet(v.address_space[0], local.subnet_newbits, idx)
         }
-      ] : [
+        ] : [
         for idx, sname in local.default_subnet_names : {
           name           = sname
           address_prefix = cidrsubnet(v.address_space[0], local.subnet_newbits, idx)
@@ -101,16 +97,16 @@ locals {
     )
   ]
 
-  # CSV validation: required columns (across global + per-env CSVs)
-  vnets_all_rows = concat(local.vnets_csv_global, local.vnets_csv_prod, local.vnets_csv_dev)
-  subnets_all_rows = concat(local.subnets_csv_global, local.subnets_csv_prod, local.subnets_csv_dev)
+  # CSV validation: required columns (across per-env CSVs)
+  vnets_all_rows   = concat(local.vnets_csv_prod, local.vnets_csv_dev)
+  subnets_all_rows = concat(local.subnets_csv_prod, local.subnets_csv_dev)
 
-  vnets_missing_required = [for r in local.vnets_all_rows : r if trimspace(coalesce(lookup(r, "role", ""), "")) == "" || trimspace(coalesce(lookup(r, "address_space", ""), "")) == ""]
+  vnets_missing_required   = [for r in local.vnets_all_rows : r if trimspace(coalesce(lookup(r, "role", ""), "")) == "" || trimspace(coalesce(lookup(r, "address_space", ""), "")) == ""]
   subnets_missing_required = [for r in local.subnets_all_rows : r if trimspace(coalesce(lookup(r, "role", ""), "")) == "" || (trimspace(coalesce(lookup(r, "subnet_name", ""), "")) == "" && trimspace(coalesce(lookup(r, "subnet_role", ""), "")) == "")]
 
   # Invalid CIDRs and overlap detection per environment (stronger overlap detection: true interval overlap)
   invalid_vnets_cidr_prod = [for v in local.vnets_from_csv_for_prod : v.address_space[0] if !can(cidrhost(v.address_space[0], 1))]
-  invalid_vnets_cidr_dev  = [for v in local.vnets_from_csv_for_dev  : v.address_space[0] if !can(cidrhost(v.address_space[0], 1))]
+  invalid_vnets_cidr_dev  = [for v in local.vnets_from_csv_for_dev : v.address_space[0] if !can(cidrhost(v.address_space[0], 1))]
 
   vnet_parsed_for_prod = [for v in local.vnets_from_csv_for_prod : {
     name   = coalesce(v.name, v.role)
@@ -143,21 +139,21 @@ locals {
   ])
 
   # For environments we already run validation via the external PowerShell script. Keep these computed errors for informational use (no-op here because the external script enforces failure).
-  csv_error_vnets_missing = length(local.vnets_missing_required) > 0 ? format("vnets.csv missing required values (role,address_space): %s", tostring(local.vnets_missing_required)) : null
-  csv_error_subnets_missing = length(local.subnets_missing_required) > 0 ? format("subnets.csv missing required values (role,subnet_name|subnet_role): %s", tostring(local.subnets_missing_required)) : null
-  csv_error_invalid_cidr_prod = length(local.invalid_vnets_cidr_prod) > 0 ? format("Invalid CIDR in vnets.csv (prod): %s", tostring(local.invalid_vnets_cidr_prod)) : null
-  csv_error_invalid_cidr_dev = length(local.invalid_vnets_cidr_dev) > 0 ? format("Invalid CIDR in vnets.csv (dev): %s", tostring(local.invalid_vnets_cidr_dev)) : null
+  csv_error_vnets_missing       = length(local.vnets_missing_required) > 0 ? format("vnets CSV missing required values (role,address_space): %s", tostring(local.vnets_missing_required)) : null
+  csv_error_subnets_missing     = length(local.subnets_missing_required) > 0 ? format("subnets CSV missing required values (role,subnet_name|subnet_role): %s", tostring(local.subnets_missing_required)) : null
+  csv_error_invalid_cidr_prod   = length(local.invalid_vnets_cidr_prod) > 0 ? format("Invalid CIDR in vnets CSV (prod): %s", tostring(local.invalid_vnets_cidr_prod)) : null
+  csv_error_invalid_cidr_dev    = length(local.invalid_vnets_cidr_dev) > 0 ? format("Invalid CIDR in vnets CSV (dev): %s", tostring(local.invalid_vnets_cidr_dev)) : null
   csv_error_overlaps_vnets_prod = length(local.overlaps_prod) > 0 ? format("CIDR overlap detected between VNets (prod): %s", jsonencode(local.overlaps_prod)) : null
-  csv_error_overlaps_vnets_dev = length(local.overlaps_dev) > 0 ? format("CIDR overlap detected between VNets (dev): %s", jsonencode(local.overlaps_dev)) : null
+  csv_error_overlaps_vnets_dev  = length(local.overlaps_dev) > 0 ? format("CIDR overlap detected between VNets (dev): %s", jsonencode(local.overlaps_dev)) : null
 
   # Build parsed subnets (from computed per-vnet lists) so we can detect overlaps when users provide explicit subnet CIDRs
   parsed_subnets_prod = flatten([for idx_v, v in local.vnets_for_prod : [for s in local.subnets_per_vnet_for_prod[idx_v] : {
-    vnet = v.name
-    cidr = s.address_prefix
-    ip = split("/", s.address_prefix)[0]
+    vnet   = v.name
+    cidr   = s.address_prefix
+    ip     = split("/", s.address_prefix)[0]
     prefix = tonumber(split("/", s.address_prefix)[1])
-    start = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))
-    end = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) + pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) - 1
+    start  = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))
+    end    = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) + pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) - 1
   } if can(cidrhost(s.address_prefix, 1))]])
 
   overlaps_subnets_prod = flatten([
@@ -167,12 +163,12 @@ locals {
   ])
 
   parsed_subnets_dev = flatten([for idx_v, v in local.vnets_for_dev : [for s in local.subnets_per_vnet_for_dev[idx_v] : {
-    vnet = v.name
-    cidr = s.address_prefix
-    ip = split("/", s.address_prefix)[0]
+    vnet   = v.name
+    cidr   = s.address_prefix
+    ip     = split("/", s.address_prefix)[0]
     prefix = tonumber(split("/", s.address_prefix)[1])
-    start = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))
-    end = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) + pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) - 1
+    start  = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))
+    end    = floor((element(split(".", split("/", s.address_prefix)[0]), 0) * 16777216 + element(split(".", split("/", s.address_prefix)[0]), 1) * 65536 + element(split(".", split("/", s.address_prefix)[0]), 2) * 256 + element(split(".", split("/", s.address_prefix)[0]), 3)) / pow(2, 32 - tonumber(split("/", s.address_prefix)[1]))) * pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) + pow(2, 32 - tonumber(split("/", s.address_prefix)[1])) - 1
   } if can(cidrhost(s.address_prefix, 1))]])
 
   overlaps_subnets_dev = flatten([
@@ -182,7 +178,7 @@ locals {
   ])
 
   csv_error_subnet_overlaps_prod = length(local.overlaps_subnets_prod) > 0 ? format("CIDR overlap detected between subnets (prod): %s", jsonencode(local.overlaps_subnets_prod)) : null
-  csv_error_subnet_overlaps_dev = length(local.overlaps_subnets_dev) > 0 ? format("CIDR overlap detected between subnets (dev): %s", jsonencode(local.overlaps_subnets_dev)) : null
+  csv_error_subnet_overlaps_dev  = length(local.overlaps_subnets_dev) > 0 ? format("CIDR overlap detected between subnets (dev): %s", jsonencode(local.overlaps_subnets_dev)) : null
 
   csv_validation_error = coalesce(local.csv_error_vnets_missing, local.csv_error_subnets_missing, local.csv_error_invalid_cidr_prod, local.csv_error_invalid_cidr_dev, local.csv_error_overlaps_vnets_prod, local.csv_error_overlaps_vnets_dev, local.csv_error_subnet_overlaps_prod, local.csv_error_subnet_overlaps_dev, null)
 }

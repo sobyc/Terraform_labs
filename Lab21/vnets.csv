@@ -1,4 +1,0 @@
-role,name,address_space,location,env
-hub,vnet-pr-ci-hub,10.0.0.0/16,Central India,prod
-finance,vnet-pr-ci-finance,10.1.0.0/16,Central India,
-hr,vnet-pr-ci-hr,10.2.0.0/16,Central India,
