@@ -23,6 +23,18 @@
 // Create Azure Firewall
 // Create three virtual machine, one in each spokeie. Spoke1 , spoke2 and hub
 // Check connectivity from spoke1 vm to spoke 2 vm via Hub Firewall
+terraform {
+  required_providers {
+    azurerm = {
+
+    }
+  }
+}
+provider "azurerm" {
+  features {}
+  subscription_id = "a6e09b43-ec1d-4074-8872-6b5cf7db6b35"
+}
+
 
 module "Platform" {
   source = "./Platform"
