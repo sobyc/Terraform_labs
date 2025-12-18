@@ -24,6 +24,7 @@ module "vnet" {
 
 module "subnet" {
   source = "./Subnet"
+  subnet_csv_path               = "${path.root}/Platform/subnet.csv"
   depends_on = [ module.vnet ]
 
 }
