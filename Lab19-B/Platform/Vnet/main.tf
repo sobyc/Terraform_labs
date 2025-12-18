@@ -98,5 +98,6 @@ resource "azurerm_virtual_network" "this" {
   dns_servers = length(each.value.dns_servers) > 0 ? each.value.dns_servers : []
 
   tags = each.value.tags
+  depends_on = [ module.resource_group ]
 }
 

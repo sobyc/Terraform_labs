@@ -21,3 +21,9 @@ module "vnet" {
   }
 }
 
+
+module "subnet" {
+  source = "./Subnet"
+  depends_on = [ module.vnet ]
+
+}
