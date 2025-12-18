@@ -28,10 +28,8 @@ function ParseCidr([string]$cidr) {
 
 $errors = @()
 
-# files to check
+# files to check (per-environment CSVs only)
 $files = @{
-    vnets_global = Join-Path $modulePath "vnets.csv"
-    subnets_global = Join-Path $modulePath "subnets.csv"
     vnets_prod = Join-Path $modulePath "vnets.prod.csv"
     subnets_prod = Join-Path $modulePath "subnets.prod.csv"
     vnets_dev = Join-Path $modulePath "vnets.dev.csv"
@@ -46,26 +44,24 @@ function ReadCsvIfExists([string]$path) {
 }
 
 $vnets_all = @()
-$vnets_all += ReadCsvIfExists $files.vnets_global
 $vnets_all += ReadCsvIfExists $files.vnets_prod
 $vnets_all += ReadCsvIfExists $files.vnets_dev
 
 $subnets_all = @()
-$subnets_all += ReadCsvIfExists $files.subnets_global
 $subnets_all += ReadCsvIfExists $files.subnets_prod
 $subnets_all += ReadCsvIfExists $files.subnets_dev
 
 # required fields
 foreach ($r in $vnets_all) {
-    if (-not $r.role -or -not $r.address_space) { $errors += "vnets.csv row missing required fields (role,address_space): $($r | ConvertTo-Csv -NoTypeInformation)" }
+    if (-not $r.role -or -not $r.address_space) { $errors += "vnets CSV row missing required fields (role,address_space): $($r | ConvertTo-Csv -NoTypeInformation)" }
 }
 foreach ($r in $subnets_all) {
-    if (-not $r.role -or (-not $r.subnet_name -and -not $r.subnet_role)) { $errors += "subnets.csv row missing required fields (role, subnet_name|subnet_role): $($r | ConvertTo-Csv -NoTypeInformation)" }
+    if (-not $r.role -or (-not $r.subnet_name -and -not $r.subnet_role)) { $errors += "subnets CSV row missing required fields (role, subnet_name|subnet_role): $($r | ConvertTo-Csv -NoTypeInformation)" }
 }
 
 # validate CIDRs and build per-env lists
-$vnets_prod = ReadCsvIfExists $files.vnets_prod + (ReadCsvIfExists $files.vnets_global | Where-Object { -not $_.env -or $_.env -eq '' -or $_.env -match '(?i)prod' })
-$vnets_dev  = ReadCsvIfExists $files.vnets_dev  + (ReadCsvIfExists $files.vnets_global | Where-Object { -not $_.env -or $_.env -eq '' -or $_.env -match '(?i)dev' })
+$vnets_prod = ReadCsvIfExists $files.vnets_prod
+$vnets_dev  = ReadCsvIfExists $files.vnets_dev
 
 function ValidateVnets([array]$list, [string]$env) {
     $parsed = @()
@@ -142,8 +138,8 @@ function ValidateSubnets([array]$vnets, [array]$subnets_env, [string]$env) {
     }
 }
 
-$subnets_prod = ReadCsvIfExists $files.subnets_prod + (ReadCsvIfExists $files.subnets_global | Where-Object { -not $_.env -or $_.env -eq '' -or $_.env -match '(?i)prod' })
-$subnets_dev  = ReadCsvIfExists $files.subnets_dev  + (ReadCsvIfExists $files.subnets_global | Where-Object { -not $_.env -or $_.env -eq '' -or $_.env -match '(?i)dev' })
+$subnets_prod = ReadCsvIfExists $files.subnets_prod
+$subnets_dev  = ReadCsvIfExists $files.subnets_dev
 
 ValidateVnets $vnets_prod "prod"
 ValidateVnets $vnets_dev  "dev"

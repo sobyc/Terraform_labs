@@ -1,17 +1,16 @@
 # Lab21 CSV templates and validation
 
-This folder supports CSV-driven creation of VNets and Subnets using `vnets.csv` and `subnets.csv`.
+This folder supports CSV-driven creation of VNets and Subnets using per-environment CSV files.
 
 Validation rules (applied during `terraform validate/plan`):
 - Required columns:
-- `vnets.csv` (global): `role`, `address_space` (optional: `name`, `location`, `env`) 
-- `subnets.csv` (global): `role`, `subnet_name` (optional: `env`)
+	- `vnets.prod.csv`, `vnets.dev.csv`: `role`, `address_space` (optional: `name`, `location`, `env`)
+	- `subnets.prod.csv`, `subnets.dev.csv`: `role`, `subnet_name` (optional: `env`)
 
 Per-environment CSVs (optional, take precedence when present):
-- `vnets.prod.csv`, `vnets.dev.csv` — if present these rows are used first for the respective environment
+- `vnets.prod.csv`, `vnets.dev.csv` — rows in these files are used for the respective environment
 - `subnets.prod.csv`, `subnets.dev.csv` — same precedence logic for subnets
 
-Precedence behavior: per-env CSV file rows are loaded first and then global CSV rows that are either empty `env` or target the current environment are appended. This allows per-env overrides and global defaults.
 - `address_space` values are validated as CIDRs (must be a valid IPv4 CIDR like `10.0.0.0/16`).
 - Duplicate CIDRs or same network address with different prefixes are treated as overlaps and will cause a plan-time error.
 
