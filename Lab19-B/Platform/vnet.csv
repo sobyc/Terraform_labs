@@ -1,4 +1,4 @@
 name,resource_group,location,address_space,dns_servers,tags
-vnet-ci-prd-hub-01,rg-ci-prd-hub-01,centralindia,10.0.0.0/16,10.0.0.4;10.0.0.5,env=prod;owner=netops
-vnet-ci-prd-spoke-01,rg-ci-prd-spoke-01,centralindia,10.1.0.0/16,10.0.0.4;10.0.0.6,env=prod;owner=support
-vnet-ci-prd-spoke-02,rg-ci-prd-spoke-02,centralindia,10.2.0.0/16,10.0.0.4;10.0.0.7,env=prod;costcenter=1234
+vnet-eus-prd-hub-01,rg-eus-prd-hub-01,eastus,10.0.0.0/16,10.0.0.4;10.0.0.5,env=prod;owner=netops
+vnet-eus-prd-spoke-01,rg-eus-prd-spoke-01,eastus,10.1.0.0/16,10.0.0.4;10.0.0.6,env=prod;owner=support
+vnet-eus-prd-spoke-02,rg-eus-prd-spoke-02,eastus,10.2.0.0/16,10.0.0.4;10.0.0.7,env=prod;costcenter=1234

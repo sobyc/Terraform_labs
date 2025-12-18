@@ -15,11 +15,11 @@ variable "env" {
 
 variable "location" {
   type    = string
-  default = "Central India"
+  default = "East US"
 }
 
 
 variable "region" {
   type    = string
-  default = "ci"
+  default = "eus"
 }
