@@ -2,6 +2,7 @@
 variable "subnet_csv_path" {
   description = "Path to the CSV file describing Subnets."
   type        = string
+
 }
 
 variable "default_resource_group_name" {

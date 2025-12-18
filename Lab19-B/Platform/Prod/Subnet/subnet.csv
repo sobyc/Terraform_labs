@@ -1,0 +1,12 @@
+name,virtual_network_name,resource_group,address_space
+GatewaySubnet,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.0.0/24
+AzureFirewallSubnet,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.1.0/24
+snet-eus-prd-hub-identity-01,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.2.0/24
+snet-eus-prd-hub-mgmt-01,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.3.0/24
+snet-eus-prd-hub-connectivity-01,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.4.0/24
+snet-eus-prd-spoke1-web-01,vnet-eus-prd-spoke-01,rg-eus-prd-spoke-01,10.1.0.0/24
+snet-eus-prd-spoke1-app-01,vnet-eus-prd-spoke-01,rg-eus-prd-spoke-01,10.1.1.0/24
+snet-eus-prd-spoke1-db-01,vnet-eus-prd-spoke-01,rg-eus-prd-spoke-01,10.1.2.0/24
+snet-eus-prd-spoke2-web-01,vnet-eus-prd-spoke-02,rg-eus-prd-spoke-02,10.2.0.0/24
+snet-eus-prd-spoke2-app-01,vnet-eus-prd-spoke-02,rg-eus-prd-spoke-02,10.2.1.0/24
+snet-eus-prd-spoke2-db-01,vnet-eus-prd-spoke-02,rg-eus-prd-spoke-02,10.2.2.0/24

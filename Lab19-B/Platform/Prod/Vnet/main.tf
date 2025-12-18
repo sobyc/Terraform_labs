@@ -1,7 +1,7 @@
 #Azure Generic vNet Module
 
 module "resource_group" {
-  source = "../Prod/Resource Group"
+  source = "../../../../Lab19-B/Platform/Prod/Resource Group"
 }
 
 

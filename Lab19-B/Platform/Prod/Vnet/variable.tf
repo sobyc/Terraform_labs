@@ -2,6 +2,7 @@
 variable "vnet_csv_path" {
   description = "Path to the CSV file describing VNets."
   type        = string
+
 }
 
 variable "default_resource_group_name" {
