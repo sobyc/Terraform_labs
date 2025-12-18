@@ -9,22 +9,14 @@
 
 
 module "vnet" {
-  source = "./Vnet"
-
-  vnet_csv_path               = "${path.root}/Platform/vnet.csv"
-  default_resource_group_name = "rg-network-default" # used if row.resource_group is empty
-  default_location            = "centralindia"       # used if row.location is empty
-
-  common_tags = {
-    owner = "support"
-    env   = "shared"
-  }
+  source = "./Prod/Vnet"
+  vnet_csv_path = "${path.root}/Platform/Prod/Vnet/vnet.csv"
 }
 
 
 module "subnet" {
-  source = "./Subnet"
-  subnet_csv_path               = "${path.root}/Platform/subnet.csv"
+  source = "./Prod/Subnet"
+  subnet_csv_path = "${path.root}/Platform/Prod/Subnet/subnet.csv"
   depends_on = [ module.vnet ]
 
 }
