@@ -1,10 +1,3 @@
-#Azure Generic vNet Module
-
-module "resource_group" {
-  source = "../../../../Lab19-B/Platform/Prod/Resource Group"
-}
-
-
 
 locals {
   vnets_raw = csvdecode(file(var.vnet_csv_path))
@@ -98,6 +91,6 @@ resource "azurerm_virtual_network" "this" {
   dns_servers = length(each.value.dns_servers) > 0 ? each.value.dns_servers : []
 
   tags = each.value.tags
-  depends_on = [ module.resource_group ]
+
 }
 
