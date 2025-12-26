@@ -14,5 +14,5 @@ variable "default_location" {
   description = "Fallback location when CSV row has empty location."
   type        = string
   default     = null
-  
+
 }

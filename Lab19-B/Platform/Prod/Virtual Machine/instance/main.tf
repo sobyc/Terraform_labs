@@ -74,11 +74,11 @@ resource "azurerm_network_interface" "vm-hub-mgmt-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.hub-mgmt.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.vm0-pip.id
+    public_ip_address_id          = azurerm_public_ip.vm0-pip.id
 
   }
-  
-  depends_on = [ azurerm_public_ip.vm1-pip ]
+
+  depends_on = [azurerm_public_ip.vm1-pip]
 
 }
 
@@ -107,8 +107,8 @@ resource "azurerm_windows_virtual_machine" "vm-ci-hub-mgmt-01" {
     sku       = "2016-Datacenter"
     version   = "latest"
   }
-  
-  depends_on = [ azurerm_network_interface.vm-hub-mgmt-01 ]
+
+  depends_on = [azurerm_network_interface.vm-hub-mgmt-01]
 
 
 }
@@ -134,11 +134,11 @@ resource "azurerm_network_interface" "vm-spoke1-web-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.spoke1-web.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.vm1-pip.id                   //Removing this to have access to this VM only from the HUb Jump Server
+    public_ip_address_id          = azurerm_public_ip.vm1-pip.id //Removing this to have access to this VM only from the HUb Jump Server
 
   }
 
-  depends_on = [ azurerm_public_ip.vm1-pip ]
+  depends_on = [azurerm_public_ip.vm1-pip]
 
 }
 output "nic-01-id" {
@@ -168,8 +168,8 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke1-web-01" {
     sku       = "2016-Datacenter"
     version   = "latest"
   }
-  
-  depends_on = [ azurerm_network_interface.vm-spoke1-web-01 ]
+
+  depends_on = [azurerm_network_interface.vm-spoke1-web-01]
 
 
 }
@@ -196,10 +196,10 @@ resource "azurerm_network_interface" "vm-spoke2-db-01" {
     name                          = "testconfiguration1"
     subnet_id                     = data.azurerm_subnet.spoke2-db.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.vm2-pip.id                                // Removing this to have access to this VM only from the HUb Jump Server
+    public_ip_address_id          = azurerm_public_ip.vm2-pip.id // Removing this to have access to this VM only from the HUb Jump Server
   }
-  
-  depends_on = [ azurerm_public_ip.vm2-pip ]
+
+  depends_on = [azurerm_public_ip.vm2-pip]
 
 }
 
@@ -229,7 +229,7 @@ resource "azurerm_windows_virtual_machine" "vm-ci-spoke2-db-01" {
     version   = "latest"
   }
 
-  depends_on = [ azurerm_network_interface.vm-spoke2-db-01 ]
+  depends_on = [azurerm_network_interface.vm-spoke2-db-01]
 
 
 }

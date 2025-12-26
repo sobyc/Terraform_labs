@@ -1,392 +1,84 @@
-#Azure Generic NSG Module
 
-data "azurerm_resource_group" "rg1" {
-  name = "rg-ci-prd-hub-01"
+
+locals {
+  nsg_raw = csvdecode(file(var.nsg_csv_path))
+
+  nsg = {
+    for row in local.nsg_raw :
+    trimspace(try(row.name, "")) => {
+      name = trimspace(try(row.name, ""))
+
+      resource_group = (
+        length(trimspace(try(row.resource_group, ""))) > 0
+        ? trimspace(row.resource_group)
+        : coalesce(var.default_resource_group_name, "")
+      )
+
+      network_security_group_name = (
+        length(trimspace(try(row.network_security_group_name, ""))) > 0
+        ? trimspace(row.network_security_group_name)
+        : coalesce(var.default_network_security_group_name, "")
+      )
+      location = (
+        length(trimspace(try(row.location, ""))) > 0
+        ? trimspace(row.location)
+        : coalesce(var.default_location, "")
+      )
+
+    }
+  }
 }
 
-output "id" {
-  value = data.azurerm_resource_group.rg1.id
-}
-resource "azurerm_network_security_group" "nsg-hub-identity" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-identity-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg1.name
+# Tags: "k=v;k2=v2" → map. Guard against malformed entries.
 
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
+
+# Fail-fast validation for required fields
+locals {
+  invalid_rows = [
+    for k, v in local.nsg :
+    k if(
+      length(v.resource_group) == 0 ||
+      length(v.network_security_group_name) == 0 ||
+      length(v.location) == 0
+    )
+  ]
+}
+
+# Emit a clear validation error before planning resources
+resource "null_resource" "validate_nsg_rows" {
+  count = length(local.invalid_rows) > 0 ? 1 : 0
+
+  provisioner "local-exec" {
+    command = "echo 'Invalid Network Security Group rows (missing RG/network_security_group_name/location): ${join(",", local.invalid_rows)}' && exit 1"
   }
 
-  tags = {
-    environment = "Production"
+  lifecycle {
+    ignore_changes = all
   }
+}
+
+# Create Network Security Groups
+resource "azurerm_network_security_group" "this" {
+  for_each            = local.nsg
+  name                = each.value.name
+  resource_group_name = each.value.resource_group
+  location            = each.value.location
 
 }
 
-data "azurerm_subnet" "hub-identity" {
-  name                 = "snet-ci-prd-hub-identity-01"
-  virtual_network_name = "vnet-ci-prd-hub-01"
-  resource_group_name  = "rg-ci-prd-hub-01"
-}
-
-output "subnet_id_identity" {
-  value = data.azurerm_subnet.hub-identity.id
+module "nsgassociations" {
+  source                  = "./nsgassociation"
+  nsgassociation_csv_path = "${path.root}/Platform/Prod/Nsg/nsgassociation/nsgassociation.csv"
+  depends_on              = [azurerm_network_security_group.this]
 }
 
 
-resource "azurerm_subnet_network_security_group_association" "hub-identity-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.hub-identity.id
-  network_security_group_id = azurerm_network_security_group.nsg-hub-identity.id
-}
+module "nsgrules" {
+  source = "./nsgrules"
 
-resource "azurerm_network_security_group" "nsg-hub-mgmt" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-mgmt-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg1.name
+  nsg_rules_csv_path = "${path.root}/Platform/Prod/Nsg/nsgrules/nsgrules.csv"
 
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-
-
-data "azurerm_subnet" "hub-mgmt" {
-  name                 = "snet-ci-prd-hub-mgmt-01"
-  virtual_network_name = "vnet-ci-prd-hub-01"
-  resource_group_name  = "rg-ci-prd-hub-01"
-}
-
-output "subnet_id" {
-  value = data.azurerm_subnet.hub-mgmt.id
-}
-
-
-resource "azurerm_subnet_network_security_group_association" "hub-mgmt-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.hub-mgmt.id
-  network_security_group_id = azurerm_network_security_group.nsg-hub-mgmt.id
-}
-
-
-resource "azurerm_network_security_group" "nsg-hub-connectivity" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-hub}-connectivity-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg1.name
-
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-data "azurerm_subnet" "hub-connectivity" {
-  name                 = "snet-ci-prd-hub-connectivity-01"
-  virtual_network_name = "vnet-ci-prd-hub-01"
-  resource_group_name  = "rg-ci-prd-hub-01"
-}
-
-output "subnet_id_connectivity" {
-  value = data.azurerm_subnet.hub-connectivity.id
-}
-
-
-resource "azurerm_subnet_network_security_group_association" "hub-connectivity-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.hub-connectivity.id
-  network_security_group_id = azurerm_network_security_group.nsg-hub-connectivity.id
-}
-
-
-
-
-
-data "azurerm_resource_group" "rg2" {
-  name = "rg-ci-prd-spoke-01"
-}
-
-output "rg-spoke1" {
-  value = data.azurerm_resource_group.rg2.id
-}
-
-resource "azurerm_network_security_group" "nsg-spoke1-web" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-web-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg2.name
-
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-data "azurerm_subnet" "spoke1-web" {
-  name                 = "snet-ci-prd-spoke1-web-01"
-  virtual_network_name = "vnet-ci-prd-spoke-01"
-  resource_group_name  = "rg-ci-prd-spoke-01"
-}
-
-output "subnet_id_spoke1_web" {
-  value = data.azurerm_subnet.spoke1-web.id
-}
-
-
-resource "azurerm_subnet_network_security_group_association" "spoke1-web-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.spoke1-web.id
-  network_security_group_id = azurerm_network_security_group.nsg-spoke1-web.id
-}
-
-
-
-
-
-
-resource "azurerm_network_security_group" "nsg-spoke1-app" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-app-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg2.name
-
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-data "azurerm_subnet" "spoke1-app" {
-  name                 = "snet-ci-prd-spoke1-app-01"
-  virtual_network_name = "vnet-ci-prd-spoke-01"
-  resource_group_name  = "rg-ci-prd-spoke-01"
-}
-
-output "subnet_id_spoke1_app" {
-  value = data.azurerm_subnet.spoke1-app.id
-}
-
-
-resource "azurerm_subnet_network_security_group_association" "spoke1-app-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.spoke1-app.id
-  network_security_group_id = azurerm_network_security_group.nsg-spoke1-app.id
-}
-
-
-resource "azurerm_network_security_group" "nsg-spoke1-db" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke1}-db-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg2.name
-
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-data "azurerm_subnet" "spoke1-db" {
-  name                 = "snet-ci-prd-spoke1-db-01"
-  virtual_network_name = "vnet-ci-prd-spoke-01"
-  resource_group_name  = "rg-ci-prd-spoke-01"
-}
-
-output "subnet_id_spoke1_db" {
-  value = data.azurerm_subnet.spoke1-db.id
-}
-
-resource "azurerm_subnet_network_security_group_association" "spoke1-db-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.spoke1-db.id
-  network_security_group_id = azurerm_network_security_group.nsg-spoke1-db.id
-}
-
-data "azurerm_resource_group" "rg3" {
-  name = "rg-ci-prd-spoke-02"
-}
-
-output "rg-spoke2" {
-  value = data.azurerm_resource_group.rg3.id
-}
-
-resource "azurerm_network_security_group" "nsg-spoke2-web" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-web-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg3.name
-
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-data "azurerm_subnet" "spoke2-web" {
-  name                 = "snet-ci-prd-spoke2-web-01"
-  virtual_network_name = "vnet-ci-prd-spoke-02"
-  resource_group_name  = "rg-ci-prd-spoke-02"
-}
-
-output "subnet_id_spoke2_web" {
-  value = data.azurerm_subnet.spoke2-web.id
-}
-
-
-resource "azurerm_subnet_network_security_group_association" "spoke2-web-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.spoke2-web.id
-  network_security_group_id = azurerm_network_security_group.nsg-spoke2-web.id
-}
-
-
-
-
-
-
-resource "azurerm_network_security_group" "nsg-spoke2-app" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-app-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg3.name
-
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-data "azurerm_subnet" "spoke2-app" {
-  name                 = "snet-ci-prd-spoke2-app-01"
-  virtual_network_name = "vnet-ci-prd-spoke-02"
-  resource_group_name  = "rg-ci-prd-spoke-02"
-}
-
-output "subnet_id_spoke2_app" {
-  value = data.azurerm_subnet.spoke2-app.id
-}
-
-
-resource "azurerm_subnet_network_security_group_association" "spoke2-app-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.spoke2-app.id
-  network_security_group_id = azurerm_network_security_group.nsg-spoke2-app.id
-}
-
-
-resource "azurerm_network_security_group" "nsg-spoke2-db" {
-  name                = "nsg-${var.region}-${var.env}-${var.vnet-spoke2}-db-01"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg3.name
-
-  security_rule {
-    name                       = "test123"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = "Production"
-  }
-
-}
-
-data "azurerm_subnet" "spoke2-db" {
-  name                 = "snet-ci-prd-spoke2-db-01"
-  virtual_network_name = "vnet-ci-prd-spoke-02"
-  resource_group_name  = "rg-ci-prd-spoke-02"
-}
-
-output "subnet_id_spoke2_db" {
-  value = data.azurerm_subnet.spoke2-db.id
-}
-
-resource "azurerm_subnet_network_security_group_association" "spoke2-db-subnet-nsg" {
-  subnet_id                 = data.azurerm_subnet.spoke2-db.id
-  network_security_group_id = azurerm_network_security_group.nsg-spoke2-db.id
+  depends_on = [
+    azurerm_network_security_group.this
+  ]
 }
