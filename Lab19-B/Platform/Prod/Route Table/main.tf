@@ -70,5 +70,18 @@ resource "azurerm_route_table" "this" {
 module "rtassociations" {
   source                 = "./rtassociation"
   rtassociation_csv_path = "${path.root}/Platform/Prod/Route Table/rtassociation/rtassociation.csv"
+  depends_on = [
+    azurerm_route_table.this
+  ]
+}
 
+
+module "route_rules" {
+  source = "./routes"
+
+  route_rules_csv_path = "${path.root}/Platform/Prod/Route Table/routes/routes.csv"
+
+  depends_on = [
+    azurerm_route_table.this
+  ]
 }
