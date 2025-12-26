@@ -1,0 +1,13 @@
+name,resource_group,location
+rt-eus-prd-hub-connectivity-01,rg-eus-prd-hub-01,eastus
+rt-eus-prd-hub-identity-01,rg-eus-prd-hub-01,eastus
+rt-eus-prd-hub-mgmt-01,rg-eus-prd-hub-01,eastus
+rt-eus-prd-hr-web-01,rg-eus-prd-hr-01,eastus
+rt-eus-prd-hr-app-01,rg-eus-prd-hr-01,eastus
+rt-eus-prd-hr-db-01,rg-eus-prd-hr-01,eastus
+rt-eus-prd-finance-web-01,rg-eus-prd-finance-01,eastus
+rt-eus-prd-finance-app-01,rg-eus-prd-finance-01,eastus
+rt-eus-prd-finance-db-01,rg-eus-prd-finance-01,eastus
+rt-eus-prd-digital-web-01,rg-eus-prd-digital-01,eastus
+rt-eus-prd-digital-app-01,rg-eus-prd-digital-01,eastus
+rt-eus-prd-digital-db-01,rg-eus-prd-digital-01,eastus

@@ -30,7 +30,7 @@ locals {
   }
 }
 
-      # Tags: "k=v;k2=v2" → map. Guard against malformed entries.
+# Tags: "k=v;k2=v2" → map. Guard against malformed entries.
 
 
 # Fail-fast validation for required fields
@@ -60,10 +60,10 @@ resource "null_resource" "validate_subnet_rows" {
 
 # Create VNets
 resource "azurerm_subnet" "this" {
-  for_each            = local.subnets
-  name                = each.value.name
+  for_each             = local.subnets
+  name                 = each.value.name
   virtual_network_name = each.value.virtual_network_name
-  resource_group_name = each.value.resource_group
-  address_prefixes      = each.value.address_space
+  resource_group_name  = each.value.resource_group
+  address_prefixes     = each.value.address_space
 
 }

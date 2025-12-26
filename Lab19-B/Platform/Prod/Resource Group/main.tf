@@ -23,7 +23,7 @@ locals {
   }
 }
 
-      # Tags: "k=v;k2=v2" → map. Guard against malformed entries.
+# Tags: "k=v;k2=v2" → map. Guard against malformed entries.
 
 
 # Fail-fast validation for required fields
