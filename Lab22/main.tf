@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
 terraform {
   required_providers {
     azurerm = {
@@ -16,3 +20,8 @@ module "Platform" {
   source = "./Platform"
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> main

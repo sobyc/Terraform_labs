@@ -1,0 +1,15 @@
+name,virtual_network_name,resource_group,address_space
+GatewaySubnet,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.0.0/24
+AzureFirewallSubnet,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.1.0/24
+snet-eus-prd-hub-identity-01,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.2.0/24
+snet-eus-prd-hub-mgmt-01,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.3.0/24
+snet-eus-prd-hub-connectivity-01,vnet-eus-prd-hub-01,rg-eus-prd-hub-01,10.0.4.0/24
+snet-eus-prd-hr-web-01,vnet-eus-prd-hr-01,rg-eus-prd-hr-01,10.10.0.0/24
+snet-eus-prd-hr-app-01,vnet-eus-prd-hr-01,rg-eus-prd-hr-01,10.10.1.0/24
+snet-eus-prd-hr-db-01,vnet-eus-prd-hr-01,rg-eus-prd-hr-01,10.10.2.0/24
+snet-eus-prd-finance-web-01,vnet-eus-prd-finance-01,rg-eus-prd-finance-01,10.20.0.0/24
+snet-eus-prd-finance-app-01,vnet-eus-prd-finance-01,rg-eus-prd-finance-01,10.20.1.0/24
+snet-eus-prd-finance-db-01,vnet-eus-prd-finance-01,rg-eus-prd-finance-01,10.20.2.0/24
+snet-eus-prd-digital-web-01,vnet-eus-prd-digital-01,rg-eus-prd-digital-01,10.30.0.0/24
+snet-eus-prd-digital-app-01,vnet-eus-prd-digital-01,rg-eus-prd-digital-01,10.30.1.0/24
+snet-eus-prd-digital-db-01,vnet-eus-prd-digital-01,rg-eus-prd-digital-01,10.30.2.0/24
