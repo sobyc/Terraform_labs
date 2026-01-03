@@ -94,3 +94,10 @@ resource "azurerm_virtual_network" "this" {
 
 }
 
+module "vnet_peering" {
+  source = "./vnetpeer"
+
+  depends_on = [azurerm_virtual_network.this]
+
+  vnet_peering_csv_path = "${path.root}/Platform/Prod/Vnet/vnetpeer/vnetpeer.csv"
+}
