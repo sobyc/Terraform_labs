@@ -1,5 +1,0 @@
-role,subnet_role,subnet_name,subnet_cidr,env
-finance,app,app-subnet,10.10.10.0/24,dev
-finance,web,web-subnet,10.10.3.0/24,dev
-finance,db,db-subnet,10.10.1.0/24,dev
-finance,test,test-subnet,10.10.2.0/24,dev
